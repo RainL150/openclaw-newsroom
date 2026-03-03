@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Runtime state (created by the pipeline)
+github_trending_state.json
+last_scan_candidates.txt
+last_scan_github.txt
+scanner_presented.md
+editorial_decisions.md
+news_log.md
+
+# Environment / secrets
+.env
+*.key
+
+# macOS
+.DS_Store
+
+# Temp files
+/tmp/
+*.log

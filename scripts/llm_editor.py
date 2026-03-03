@@ -1,0 +1,437 @@
+#!/usr/bin/env python3
+"""
+llm_editor.py - AI Editor for Automated News Scanning
+======================================================
+Replaces deterministic keyword filtering with Gemini Flash AI-powered
+story selection. Reads candidate articles, an editorial profile, and
+recent post history, then calls Gemini to pick the top stories.
+
+Usage:
+    python3 llm_editor.py --file candidates.txt [--github github.txt]
+
+Input format (pipe-delimited, one per line):
+    TITLE|URL|SOURCE
+    TITLE|URL|SOURCE|TIER   (tier is optional, ignored by LLM)
+
+Output (stdout, one JSON object per line):
+    {"rank": 1, "title": "...", "url": "...", "source": "...",
+     "type": "rss", "summary": "...", "category": "..."}
+
+Logs picked stories to scanner_presented.md (append).
+All status/debug messages go to stderr.
+"""
+
+import argparse
+import json
+import os
+import re
+import sys
+import urllib.request
+import urllib.error
+from datetime import datetime
+from pathlib import Path
+
+# ── Paths (customize to your workspace) ──────────────────────────────
+WORKSPACE = Path(os.environ.get("OPENCLAW_WORKSPACE",
+                                os.path.expanduser("~/.openclaw/workspace")))
+MEMORY = WORKSPACE / "memory"
+EDITORIAL_PROFILE = MEMORY / "editorial_profile.md"
+SCANNER_PRESENTED = MEMORY / "scanner_presented.md"
+NEWS_LOG = MEMORY / "news_log.md"
+
+# ── Configuration ────────────────────────────────────────────────────
+GEMINI_MODEL = "gemini-3-flash-preview"
+GEMINI_URL = (
+    "https://generativelanguage.googleapis.com/v1beta/models/"
+    f"{GEMINI_MODEL}:generateContent"
+)
+TEMPERATURE = 0.3
+TIMEOUT_SEC = 120
+MAX_ARTICLES = 500
+VALID_CATEGORIES = {
+    "ai_product", "m_and_a", "model_release", "security", "geopolitics",
+    "github_trending", "gaming", "fintech", "hardware", "open_source", "other"
+}
+
+
+def log(msg):
+    ts = datetime.now().strftime("%H:%M:%S")
+    print(f"[llm_editor {ts}] {msg}", file=sys.stderr)
+
+
+def estimate_tokens(text):
+    return len(text) // 4
+
+
+def parse_articles(filepath):
+    articles = []
+    try:
+        with open(filepath, "r") as f:
+            for line_num, line in enumerate(f, 1):
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                parts = line.split("|")
+                if len(parts) < 3:
+                    continue
+                articles.append({
+                    "title": parts[0].strip(),
+                    "url": parts[1].strip(),
+                    "source": parts[2].strip(),
+                })
+    except FileNotFoundError:
+        log(f"ERROR: File not found: {filepath}")
+        sys.exit(1)
+    return articles
+
+
+def load_file_safe(path, tail_lines=None):
+    try:
+        with open(path, "r") as f:
+            lines = f.readlines()
+        if tail_lines and len(lines) > tail_lines:
+            lines = lines[-tail_lines:]
+        return "".join(lines)
+    except FileNotFoundError:
+        return ""
+    except Exception as e:
+        log(f"  Error reading {path}: {e}")
+        return ""
+
+
+def filter_already_posted(articles):
+    """
+    Deterministic URL pre-filter: remove candidates whose URL already
+    appears in news_log.md or scanner_presented.md.
+    """
+    full_log = load_file_safe(NEWS_LOG)
+    if not full_log:
+        return articles
+
+    presented_log = load_file_safe(SCANNER_PRESENTED)
+
+    url_pattern = re.compile(r'https?://[^\s|>\]\)"\']+')
+    posted_urls = set()
+    for text in [full_log, presented_log]:
+        for url in url_pattern.findall(text):
+            url = url.rstrip(".,;:)")
+            # Skip your own channel links (customize this pattern)
+            # if "t.me/yourchannel" in url:
+            #     continue
+            posted_urls.add(url)
+
+    if not posted_urls:
+        return articles
+
+    filtered = []
+    removed = 0
+    for a in articles:
+        candidate_url = a["url"].rstrip(".,;:)")
+        if candidate_url in posted_urls:
+            log(f"  PRE-FILTERED (already posted): {a['title'][:60]}")
+            removed += 1
+        else:
+            filtered.append(a)
+
+    log(f"Pre-filtered {removed} candidates (already posted)")
+    return filtered
+
+
+def build_prompt(articles, github_articles, editorial_profile, recent_posts, top_n):
+    article_list = []
+    for i, a in enumerate(articles, 1):
+        article_list.append(f"  {i}. [{a['source']}] {a['title']}\n     URL: {a['url']}")
+    articles_text = "\n".join(article_list)
+
+    github_text = ""
+    if github_articles:
+        gh_list = []
+        for i, g in enumerate(github_articles, 1):
+            gh_list.append(f"  {i}. [{g['source']}] {g['title']}\n     URL: {g['url']}")
+        github_text = (
+            "\n\n## GitHub Trending Repos\n"
+            "These are trending GitHub repositories. Include any that are genuinely\n"
+            "newsworthy for your audience.\n\n"
+            + "\n".join(gh_list)
+        )
+
+    prompt = f"""You are the AI editor for an automated news channel. Your job is to select
+the top {top_n} stories from the candidate list below.
+
+## Editorial Profile
+{editorial_profile}
+
+## Recently Posted Stories (do NOT pick duplicates of these)
+{recent_posts if recent_posts else '(No recent posts available)'}
+
+## Candidate Articles
+{articles_text}
+{github_text}
+
+## Your Task
+Select exactly {top_n} stories from the candidates above. Rank them by
+newsworthiness for the target audience.
+
+## Rules
+1. Return EXACTLY {top_n} stories — no more, no fewer.
+2. Do NOT pick stories that duplicate recently posted stories (same event).
+   If a candidate covers the SAME EVENT as a recently posted story — even
+   from a different source or with a different headline — do NOT pick it.
+3. Maximum 2 stories from the same source.
+4. Include a 1-sentence summary explaining WHY each story matters.
+5. Rank by newsworthiness: breaking news > major deals > product launches > analysis.
+6. Prefer concrete news (X acquired Y, X launched Z) over speculation or opinion.
+7. If a GitHub repo is trending AND relevant to the audience, include it.
+8. Assign each story a category from this list:
+   ai_product, m_and_a, model_release, security, geopolitics,
+   github_trending, gaming, fintech, hardware, open_source, other
+
+## Required JSON Output Format
+Return a JSON array of exactly {top_n} objects, each with these fields:
+[
+  {{
+    "rank": 1,
+    "title": "Story headline",
+    "url": "https://...",
+    "source": "Source name",
+    "type": "rss, twitter, or github (use twitter for X/Twitter sources)",
+    "summary": "One sentence why this matters.",
+    "category": "category_from_list_above"
+  }}
+]
+
+Return ONLY the JSON array. No markdown, no commentary, no code fences."""
+    return prompt
+
+
+def call_gemini(prompt, api_key):
+    url = f"{GEMINI_URL}?key={api_key}"
+
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "temperature": TEMPERATURE,
+            "responseMimeType": "application/json",
+        }
+    }
+
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        url, data=data,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+
+    token_est = estimate_tokens(prompt)
+    log(f"Sending prompt to Gemini Flash (~{token_est} tokens)")
+
+    try:
+        with urllib.request.urlopen(req, timeout=TIMEOUT_SEC) as resp:
+            body = resp.read().decode("utf-8")
+            result = json.loads(body)
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode("utf-8") if e.fp else "(no body)"
+        log(f"API HTTP error {e.code}: {error_body[:500]}")
+        return None
+    except urllib.error.URLError as e:
+        log(f"API connection error: {e.reason}")
+        return None
+    except Exception as e:
+        log(f"API call failed: {e}")
+        return None
+
+    try:
+        text = result["candidates"][0]["content"]["parts"][0]["text"]
+    except (KeyError, IndexError) as e:
+        log(f"Unexpected API response structure: {e}")
+        return None
+
+    try:
+        picks = json.loads(text)
+        if isinstance(picks, list):
+            return picks
+        if isinstance(picks, dict) and "stories" in picks:
+            return picks["stories"]
+        return None
+    except json.JSONDecodeError:
+        match = re.search(r'\[\s*\{.*?\}\s*\]', text, re.DOTALL)
+        if match:
+            try:
+                picks = json.loads(match.group())
+                if isinstance(picks, list):
+                    return picks
+            except json.JSONDecodeError:
+                pass
+        log(f"Could not parse LLM response. First 500 chars: {text[:500]}")
+        return None
+
+
+def fallback_picks(articles, github_articles, top_n):
+    log("FALLBACK: Using raw article order (no LLM judgment)")
+    all_candidates = articles.copy()
+    if github_articles:
+        all_candidates.extend(github_articles)
+
+    picks = []
+    seen_sources = {}
+    for a in all_candidates:
+        src = a["source"]
+        if seen_sources.get(src, 0) >= 2:
+            continue
+        seen_sources[src] = seen_sources.get(src, 0) + 1
+        if "github.com" in a["url"]:
+            article_type = "github"
+        elif "x.com/" in a.get("url", "") or "twitter.com/" in a.get("url", "") or "X/" in a.get("source", ""):
+            article_type = "twitter"
+        else:
+            article_type = "rss"
+        picks.append({
+            "rank": len(picks) + 1,
+            "title": a["title"],
+            "url": a["url"],
+            "source": a["source"],
+            "type": article_type,
+            "summary": "(Fallback: no AI summary available)",
+            "category": "other",
+        })
+        if len(picks) >= top_n:
+            break
+    return picks
+
+
+def validate_picks(picks, top_n):
+    validated = []
+    for i, pick in enumerate(picks):
+        if not isinstance(pick, dict):
+            continue
+        entry = {
+            "rank": pick.get("rank", i + 1),
+            "title": pick.get("title", "(no title)"),
+            "url": pick.get("url", ""),
+            "source": pick.get("source", "unknown"),
+            "type": pick.get("type", "rss"),
+            "summary": pick.get("summary", ""),
+            "category": pick.get("category", "other"),
+        }
+        if entry["category"] not in VALID_CATEGORIES:
+            entry["category"] = "other"
+        if entry["type"] not in ("rss", "twitter", "github"):
+            entry["type"] = "rss"
+        validated.append(entry)
+
+    for i, v in enumerate(validated):
+        v["rank"] = i + 1
+
+    if len(validated) != top_n:
+        log(f"  Warning: expected {top_n} picks, got {len(validated)}")
+    return validated
+
+
+def log_to_scanner_presented(picks):
+    today = datetime.now().strftime("%Y-%m-%d")
+    today_header = f"## {today}"
+    ts = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+
+    try:
+        existing = ""
+        if SCANNER_PRESENTED.exists():
+            existing = SCANNER_PRESENTED.read_text()
+
+        with open(SCANNER_PRESENTED, "a") as f:
+            if today_header not in existing:
+                f.write(f"\n{today_header}\n\n")
+            for pick in picks:
+                f.write(f"[{ts}] {pick['title']} | {pick['url']}\n")
+
+        log(f"Logged {len(picks)} picks to scanner_presented.md")
+    except Exception as e:
+        log(f"Warning: could not log to scanner_presented.md: {e}")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="AI Editor — selects top stories using Gemini Flash"
+    )
+    parser.add_argument("--file", "-f", required=True,
+                       help="Path to article candidates file")
+    parser.add_argument("--github", "-g",
+                       help="Path to GitHub trending repos file")
+    parser.add_argument("--dry-run", action="store_true",
+                       help="Build prompt and print to stderr, but don't call API")
+    args = parser.parse_args()
+
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        log("ERROR: GEMINI_API_KEY environment variable not set")
+        sys.exit(1)
+
+    top_n = int(os.environ.get("TOP_N", "7"))
+    log(f"Configuration: top_n={top_n}, model={GEMINI_MODEL}")
+
+    log(f"Loading articles from {args.file}")
+    articles = parse_articles(args.file)
+    log(f"  Loaded {len(articles)} candidates")
+    if len(articles) > MAX_ARTICLES:
+        articles = articles[:MAX_ARTICLES]
+
+    if not articles:
+        log("ERROR: No articles found in input file")
+        sys.exit(1)
+
+    github_articles = []
+    if args.github:
+        github_articles = parse_articles(args.github)
+        log(f"  Loaded {len(github_articles)} GitHub repos")
+
+    log("Running deterministic URL pre-filter")
+    articles = filter_already_posted(articles)
+    if github_articles:
+        github_articles = filter_already_posted(github_articles)
+
+    total_candidates = len(articles) + len(github_articles)
+    if top_n > total_candidates:
+        top_n = total_candidates
+
+    log("Loading editorial profile")
+    editorial_profile = load_file_safe(EDITORIAL_PROFILE)
+    if not editorial_profile:
+        editorial_profile = (
+            "Select stories about AI, LLMs, tech deals, and security.\n"
+            "Prefer breaking news and concrete announcements over opinion."
+        )
+
+    log("Loading recent post history for dedup")
+    recent_presented = load_file_safe(SCANNER_PRESENTED, tail_lines=60)
+    recent_news_log = load_file_safe(NEWS_LOG, tail_lines=150)
+    recent_posts = ""
+    if recent_presented:
+        recent_posts += "### scanner_presented.md (recent)\n" + recent_presented + "\n"
+    if recent_news_log:
+        recent_posts += "### news_log.md (recent)\n" + recent_news_log + "\n"
+
+    prompt = build_prompt(articles, github_articles, editorial_profile, recent_posts, top_n)
+    prompt_tokens = estimate_tokens(prompt)
+    log(f"Prompt built: ~{prompt_tokens} estimated tokens")
+
+    if args.dry_run:
+        log("DRY RUN — printing prompt to stderr")
+        print(prompt, file=sys.stderr)
+        return
+
+    picks = call_gemini(prompt, api_key)
+
+    if picks is None:
+        picks = fallback_picks(articles, github_articles, top_n)
+    else:
+        log(f"LLM returned {len(picks)} picks")
+        picks = validate_picks(picks, top_n)
+
+    for pick in picks:
+        print(json.dumps(pick, ensure_ascii=False))
+
+    log_to_scanner_presented(picks)
+    log(f"Done. {len(picks)} stories selected.")
+
+
+if __name__ == "__main__":
+    main()
