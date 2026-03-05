@@ -202,18 +202,87 @@ def build_prompt(articles, github_articles, editorial_profile, recent_posts):
 {github_text}
 
 ## 任务
-对候选新闻做“全量四板块分类 + 去重 + 打分”。
+**第一阶段：分类 + 去重 + 打分**
+对候选新闻做"全量四板块分类 + 去重 + 打分"。
 必须返回全部候选（去重后）的结果，不做精选、不截断。
+注意：本阶段不生成板块总结，section_summary 字段留空即可。
 
-## 四个板块定义
-1) 模型层面（Model）：算法、架构、训练、推理能力、基准测试、模型开源/微调等。
-2) 应用层面（Application）：Agent、产品工具、工作流落地、终端/本地部署体验等。
-3) 基建层面（Infrastructure）：网关、部署、性能优化、资源与成本、带宽/存储等底层支撑。
-4) 公司层面（Company/Industry）：公司战略、融资并购、生态合作、市场与产业动态。
+## 四个板块定义（清晰划分，避免交叉）
+
+### 1) 模型层面（Model）
+**核心**：模型能力本身，从算法到可用模型的完整生命周期
+**包括**：
+- 模型发布/更新（新模型、版本迭代、能力升级）
+- 架构创新（Transformer 变体、新型注意力机制、MoE）
+- 训练方法（RLHF、DPO、多模态训练、持续学习）
+- 推理能力（推理速度、长上下文、工具调用、结构化输出）
+- Benchmark 与评测（准确率、幻觉率、安全性测试）
+- 开源模型/微调技术（LoRA、量化、蒸馏）
+- 提示工程方法论（Prompt 设计、Chain-of-Thought）
+**典型关键词**：GPT、Claude、Llama、Gemini、训练、推理、Benchmark、微调、量化、上下文长度
+**判断标准**：是否直接关于模型的"能力"或"如何训练/优化模型"
+
+### 2) 应用层面（Application）
+**核心**：基于模型构建的产品、工具、系统
+**包括**：
+- AI 产品（ChatGPT、Claude.ai、Copilot、Cursor 等终端产品）
+- 开发者工具（代码助手、IDE 插件、调试工具）
+- Agent 系统（自主任务执行、多步骤决策、工具调用）
+- 工作流自动化（RPA、业务流程、数据处理管道）
+- 垂直场景应用（客服、销售、法律、医疗、金融、教育）
+- 创意工具（图像生成、视频生成、音乐创作、内容创作）
+- 终端/本地部署体验（移动端 AI、边缘计算、离线模型）
+**典型关键词**：ChatGPT、Cursor、Agent、工作流、代码助手、客服机器人、自动化、插件
+**判断标准**：是否是"用户/开发者直接使用的产品或工具"
+
+### 3) 基建层面（Infrastructure）
+**核心**：支撑模型运行和应用部署的底层设施（软件+硬件）
+**包括**：
+- **软件基建**：
+  * API 网关/代理（请求路由、负载均衡、容错）
+  * 向量数据库（检索、RAG、语义搜索）
+  * 部署平台（Kubernetes、容器化、Serverless）
+  * 监控与可观测（日志、追踪、性能分析）
+  * 缓存系统（语义缓存、结果缓存、Token 优化）
+- **硬件基建**：
+  * GPU/TPU/NPU（H100、A100、TPU v5、自研芯片）
+  * 芯片设计（AI 专用芯片、ASIC）
+  * 服务器与数据中心（散热、供电、网络）
+  * 网络设备（高速互联、InfiniBand）
+  * 存储设备（NVMe、分布式存储）
+- **性能与成本**：
+  * 推理加速（量化推理、批处理、KV Cache 优化）
+  * 成本优化（Token 计费、请求合并、智能路由）
+  * 资源调度（GPU 共享、动态扩缩容）
+**典型关键词**：网关、向量库、GPU、H100、TPU、芯片、部署、监控、性能、成本、延迟、缓存
+**判断标准**：是否是"让模型/应用运行起来"的底层支撑
+
+### 4) 公司层面（Company/Industry）
+**核心**：组织、资本、人员、市场、政策
+**包括**：
+- **公司动态**：
+  * 融资并购（A/B/C 轮融资、IPO、收购、战略投资）
+  * 战略调整（业务转型、重组、裁员、扩张）
+  * 组织变革（部门调整、新团队成立）
+  * 生态合作（技术联盟、API 合作、战略伙伴）
+- **人员变动**（明星个人）：
+  * 开发者/研究员（Andrej Karpathy、Ilya Sutskever 等）
+  * 产品经理/设计师（知名产品负责人）
+  * CEO/CTO/高管（Sam Altman、Demis Hassabis 等）
+  * 就职、离职、升职、调岗、创业
+- **市场与政策**：
+  * 行业报告（市场规模、增长趋势、用户调研）
+  * 政策法规（AI 监管、数据隐私、出口管制）
+  * 竞争格局（市场份额、用户数、营收对比）
+  * 地缘政治（算力限制、技术封锁、国际合作）
+**典型关键词**：融资、并购、离职、就职、CEO、CTO、战略、政策、市场、监管、IPO
+**判断标准**：是否关于"组织/资本/人员/市场"而非技术本身
 
 ## 规则
-1. 必须返回全部候选（去重后）新闻，按 section + score 组织。
-2. 不得选择与最近已发重复的同一事件（即使标题或来源不同）。
+1. 必须返回全部候选的结果，按 section + score 组织。
+2. **去重规则（仅全局去重）**：
+   - 不得选择与最近已发重复的同一事件（即使标题或来源不同）
+   - 注意：板块内去重会在后处理阶段完成（因为分批处理无法跨 batch 去重）
 3. 同一来源不设上限（由分数与板块相关性自然决定）。
 4. 每条必须给出"中文标题"（title_zh，10-20字）和"中文总结"（summary），都必须是中文。
 5. 每条必须给出 score（0-100 的整数），用于排序；每个板块内按 score 从高到低。
@@ -222,17 +291,7 @@ def build_prompt(articles, github_articles, editorial_profile, recent_posts):
 8. category 仅可从以下集合中选择：
    ai_product, m_and_a, model_release, security, geopolitics,
    github_trending, gaming, fintech, hardware, open_source, other
-9. 每个板块需提供“结构化板块总结”（中文，<=10句），严格按以下格式输出到 section_summary：
-   一句话总趋势：...
-   关键词：
-   - 词1
-   - 词2
-   - 词3
-   最大主题：...
-   核心问题：...
-   典型方向：
-   - 方向1
-   - 方向2
+9. **section_summary 字段暂时留空**（不要生成板块总结，板块总结会在第二阶段单独生成）
 
 ## 输出格式（必须是 JSON）
 仅返回 JSON 数组（长度应覆盖全部候选去重结果）：
@@ -248,7 +307,7 @@ def build_prompt(articles, github_articles, editorial_profile, recent_posts):
     "category": "上述枚举之一",
     "section": "模型层面（Model）/应用层面（Application）/基建层面（Infrastructure）/公司层面（Company/Industry）",
     "score": 0,
-    "section_summary": "结构化板块总结（严格使用：一句话总趋势/关键词/最大主题/核心问题/典型方向）",
+    "section_summary": "",
     "channel": "RSS/Reddit/X/Twitter/GitHub/Tavily"
   }}
 ]
@@ -385,15 +444,69 @@ def _infer_channel(url, source, story_type):
 
 
 def _infer_section(title, source, story_type):
+    """根据标题和来源推断板块（降级逻辑，优先使用 LLM 分类）"""
     text = f"{title} {source}".lower()
-    if any(k in text for k in ["model", "benchmark", "llm", "gpt", "claude", "llama", "推理", "训练", "权重"]):
+
+    # 1. 模型层面：模型能力、训练、推理、Benchmark
+    model_keywords = [
+        "model", "llm", "gpt", "claude", "llama", "gemini", "mistral",
+        "训练", "推理", "微调", "量化", "benchmark", "eval",
+        "transformer", "attention", "rlhf", "dpo",
+        "accuracy", "hallucination", "context", "上下文",
+        "权重", "checkpoint", "fine-tune", "lora"
+    ]
+    if any(k in text for k in model_keywords):
         return "模型层面（Model）"
-    if any(k in text for k in ["gateway", "infra", "infrastructure", "部署", "latency", "cost", "gpu", "带宽", "存储"]):
+
+    # 2. 基建层面：软件基建 + 硬件基建
+    infra_keywords = [
+        # 软件基建
+        "gateway", "infra", "infrastructure", "api", "proxy",
+        "vector", "database", "deployment", "kubernetes", "docker",
+        "monitor", "cache", "缓存", "部署", "网关", "向量",
+        # 硬件基建
+        "gpu", "tpu", "npu", "chip", "芯片", "h100", "a100",
+        "nvidia", "amd", "intel", "hardware", "硬件",
+        "server", "服务器", "data center", "数据中心",
+        "storage", "存储", "bandwidth", "带宽",
+        # 性能与成本
+        "latency", "延迟", "cost", "成本", "performance", "性能"
+    ]
+    if any(k in text for k in infra_keywords):
         return "基建层面（Infrastructure）"
-    if any(k in text for k in ["acquire", "fund", "融资", "并购", "company", "战略", "market", "industry"]):
+
+    # 3. 公司层面：融资并购 + 人员变动 + 市场政策
+    company_keywords = [
+        # 融资并购
+        "fund", "融资", "acquire", "并购", "merger", "ipo",
+        "investment", "投资", "valuation", "估值",
+        # 人员变动
+        "ceo", "cto", "founder", "创始人", "离职", "就职",
+        "hire", "resign", "leave", "join", "appoint",
+        "karpathy", "sutskever", "altman", "hassabis",
+        # 市场政策
+        "market", "市场", "industry", "行业", "regulation", "监管",
+        "policy", "政策", "law", "法律", "competition", "竞争",
+        "strategy", "战略", "partnership", "合作", "alliance", "联盟"
+    ]
+    if any(k in text for k in company_keywords):
         return "公司层面（Company/Industry）"
+
+    # 4. 应用层面：产品、工具、Agent（默认兜底）
+    # GitHub 项目通常是应用层面
     if story_type == "github":
         return "应用层面（Application）"
+
+    # 其他关键词
+    app_keywords = [
+        "chatgpt", "copilot", "cursor", "agent", "工作流",
+        "plugin", "插件", "tool", "工具", "app", "应用",
+        "product", "产品", "feature", "功能", "automation", "自动化"
+    ]
+    if any(k in text for k in app_keywords):
+        return "应用层面（Application）"
+
+    # 默认兜底
     return "应用层面（Application）"
 
 
@@ -643,6 +756,240 @@ def retry_missing_summaries(merged_items, missing_items, editorial_profile, rece
     return merged_items
 
 
+def build_section_summary_prompt(section_name, articles, editorial_profile):
+    """构建单个板块的总结 prompt"""
+    article_list = []
+    for i, a in enumerate(articles, 1):
+        article_list.append(f"  {i}. [{a.get('source', 'unknown')}] {a.get('title_zh', a.get('title', ''))} (score={a.get('score', 0)})")
+        summary = a.get('summary', '')
+        if summary:
+            article_list.append(f"     总结: {summary[:200]}")
+    articles_text = "\n".join(article_list)
+
+    prompt = f"""你是 AI 新闻频道的总编。请为"{section_name}"板块生成结构化总结。
+
+## 编辑偏好参考
+{editorial_profile}
+
+## {section_name} 板块新闻列表（共 {len(articles)} 条）
+{articles_text}
+
+## 任务
+基于上述 {len(articles)} 条新闻，生成该板块的结构化总结。
+
+## 总结要求
+**必须基于本板块实际新闻内容**，提炼具体方向性信息，避免空泛描述。
+
+## 输出格式（纯文本，不要 JSON）
+严格按以下格式输出：
+
+一句话总趋势：[从本板块新闻中提炼的核心趋势，需包含具体技术/方向]
+关键词：
+- [本板块出现的具体技术栈/工具名，如"LangChain""Claude API""LoRA 微调"]
+- [本板块的核心问题领域，如"成本优化""多模态融合""安全沙箱"]
+- [本板块的应用场景，如"金融交易""代码生成""实时翻译"]
+最大主题：[本板块新闻量最大/影响最广的单一主题，需具体到技术方向或产品类型]
+核心问题：[本板块新闻共同指向的痛点/挑战，需具体可执行]
+典型方向：
+- [具体技术方案1，如"基于语义缓存的重复查询优化"]
+- [具体技术方案2，如"多模型路由 + fallback 策略"]
+- [具体技术方案3，如"端侧小模型 + 云端大模型混合部署"]
+
+【示例（应用层面）】
+一句话总趋势：AI Agent 从单任务工具转向多步骤工作流自动化，重点解决可靠性与成本平衡
+关键词：
+- LangChain/LangGraph 工作流编排
+- 金融交易自动化/代码审查 Agent
+- 错误重试与人机协同
+最大主题：工作流自动化 Agent（占本板块 60%）
+核心问题：如何在多步骤任务中保证执行可靠性，同时控制 API 调用成本
+典型方向：
+- 基于状态机的多步骤任务编排（LangGraph、Temporal）
+- 关键步骤人工审核 + 自动重试机制
+- 小模型预筛选 + 大模型决策的混合架构
+
+只返回格式化的总结文本，不要额外解释。"""
+    return prompt
+
+
+def deduplicate_within_sections(picks):
+    """第二阶段：板块内去重（后处理，跨所有 batch）"""
+    from collections import defaultdict
+    import re
+
+    log("\n=== Phase 2: Section-level deduplication ===")
+
+    # 按板块分组
+    sections = defaultdict(list)
+    for p in picks:
+        section = p.get("section", "应用层面（Application）")
+        sections[section].append(p)
+
+    deduped_picks = []
+    total_removed = 0
+
+    for section_name, items in sections.items():
+        log(f"Deduplicating {section_name} ({len(items)} items)...")
+
+        # 板块内去重逻辑
+        seen_entities = {}  # key: 实体标识, value: 最佳新闻
+
+        for item in items:
+            url = item.get("url", "")
+            title = item.get("title", "")
+            title_zh = item.get("title_zh", "")
+            score = int(item.get("score", 0))
+
+            # 提取核心实体作为去重标识
+            # 优先级：标题核心实体 > URL > 标题前缀
+            entity_key = None
+
+            # 方法1：提取标题中的核心实体（英文大写词组，如 "OpenAI GPT-5"）
+            entity_matches = re.findall(r'\b[A-Z][a-zA-Z0-9]*(?:\s+[A-Z0-9][a-zA-Z0-9]*)*\b', title)
+            if entity_matches:
+                # 取最长的实体作为标识（通常是最完整的）
+                longest_entity = max(entity_matches, key=len)
+                # 结合中文标题提取关键词辅助判断
+                entity_key = longest_entity.lower()
+
+            # 方法2：如果没有明显实体，使用标题前 30 个字符 + 中文标题前 15 个字符
+            if not entity_key:
+                entity_key = (title[:30] + title_zh[:15]).lower().strip()
+
+            # 方法3：如果还是空，使用 URL 域名 + 路径片段
+            if not entity_key and url:
+                # 提取 URL 的关键部分（避免完全使用 URL，因为可能不同来源报道同一事件）
+                url_parts = url.split('/')
+                if len(url_parts) > 3:
+                    entity_key = '/'.join(url_parts[2:5]).lower()  # 域名 + 前两级路径
+                else:
+                    entity_key = url.lower()
+
+            # 最后兜底：使用标题 hash
+            if not entity_key:
+                entity_key = str(hash(title + title_zh))[:16]
+
+            # 检查是否已存在相同实体
+            if entity_key in seen_entities:
+                existing = seen_entities[entity_key]
+                existing_score = int(existing.get("score", 0))
+
+                # 比较分数，保留更高分的
+                if score > existing_score:
+                    log(f"  Replace (score {existing_score}→{score}): {entity_key[:50]}")
+                    seen_entities[entity_key] = item
+                    total_removed += 1
+                else:
+                    log(f"  Skip duplicate (score {score}<={existing_score}): {entity_key[:50]}")
+                    total_removed += 1
+                    continue
+            else:
+                seen_entities[entity_key] = item
+
+        # 收集去重后的结果
+        deduped_picks.extend(seen_entities.values())
+        log(f"  {section_name}: {len(items)} → {len(seen_entities)} (removed {len(items) - len(seen_entities)})")
+
+    log(f"Total removed by section-level dedup: {total_removed}")
+    log(f"Remaining items: {len(deduped_picks)}")
+
+    # 重新排序
+    deduped_picks.sort(key=lambda x: (x.get("section", ""), int(x.get("score", 0)) * -1))
+    for i, p in enumerate(deduped_picks, 1):
+        p["rank"] = i
+
+    return deduped_picks
+
+
+def generate_section_summaries(picks, editorial_profile, selected_provider, gemini_api_key, openrouter_api_key):
+    """第三阶段：为每个板块生成总结"""
+    from collections import defaultdict
+
+    # 按板块分组
+    sections = defaultdict(list)
+    for p in picks:
+        section = p.get("section", "应用层面（Application）")
+        sections[section].append(p)
+
+    log(f"\n=== Phase 2: Generating section summaries ===")
+
+    # 对每个板块生成总结
+    for section_name, items in sections.items():
+        if not items:
+            continue
+
+        log(f"Generating summary for {section_name} ({len(items)} items)...")
+        prompt = build_section_summary_prompt(section_name, items, editorial_profile)
+
+        # 调用 LLM（不使用 JSON 模式，直接返回文本）
+        summary_text = None
+        max_retries = 2
+
+        for attempt in range(max_retries):
+            if selected_provider == "gemini":
+                # Gemini 调用，使用 text 模式
+                url = f"{GEMINI_URL}?key={gemini_api_key}"
+                payload = {
+                    "contents": [{"parts": [{"text": prompt}]}],
+                    "generationConfig": {"temperature": TEMPERATURE}
+                }
+                data = json.dumps(payload).encode("utf-8")
+                req = urllib.request.Request(
+                    url, data=data,
+                    headers={"Content-Type": "application/json"},
+                    method="POST"
+                )
+                try:
+                    with urllib.request.urlopen(req, timeout=TIMEOUT_SEC) as resp:
+                        body = resp.read().decode("utf-8")
+                        result = json.loads(body)
+                        summary_text = result["candidates"][0]["content"]["parts"][0]["text"]
+                        break
+                except Exception as e:
+                    log(f"  Attempt {attempt + 1} failed: {e}")
+            else:
+                # OpenRouter 调用
+                payload = {
+                    "model": OPENROUTER_MODEL,
+                    "temperature": TEMPERATURE,
+                    "messages": [{"role": "user", "content": prompt}],
+                }
+                data = json.dumps(payload).encode("utf-8")
+                req = urllib.request.Request(
+                    OPENROUTER_URL, data=data,
+                    headers={
+                        "Content-Type": "application/json",
+                        "Authorization": f"Bearer {openrouter_api_key}",
+                    },
+                    method="POST",
+                )
+                try:
+                    with urllib.request.urlopen(req, timeout=TIMEOUT_SEC) as resp:
+                        body = resp.read().decode("utf-8")
+                        result = json.loads(body)
+                        summary_text = result["choices"][0]["message"]["content"]
+                        break
+                except Exception as e:
+                    log(f"  Attempt {attempt + 1} failed: {e}")
+
+            if attempt < max_retries - 1:
+                log(f"  Retrying...")
+
+        if summary_text:
+            # 填充到该板块所有新闻的 section_summary 字段
+            for item in items:
+                item["section_summary"] = summary_text.strip()
+            log(f"  ✓ Summary generated ({len(summary_text)} chars)")
+        else:
+            log(f"  ✗ Failed to generate summary for {section_name}")
+            # 使用降级总结
+            fallback_summary = "一句话总趋势：本板块新闻涵盖多个方向，建议查看具体新闻了解详情。\n关键词：\n- 待分析\n- 待分析\n- 待分析\n最大主题：暂无\n核心问题：暂无\n典型方向：\n- 待分析\n- 待分析\n- 待分析"
+            for item in items:
+                item["section_summary"] = fallback_summary
+
+    return picks
+
+
 def log_to_scanner_presented(picks):
     today = datetime.now().strftime("%Y-%m-%d")
     today_header = f"## {today}"
@@ -785,7 +1132,20 @@ def main():
             gemini_api_key,
             openrouter_api_key,
         )
-    
+
+    # 第二阶段：板块内去重（跨所有 batch）
+    picks = deduplicate_within_sections(picks)
+
+    # 第三阶段：生成板块总结
+    log("\n=== Phase 3: Generating section summaries ===")
+    picks = generate_section_summaries(
+        picks,
+        editorial_profile,
+        selected_provider,
+        gemini_api_key,
+        openrouter_api_key,
+    )
+
     # 精选过滤：筛掉低于阈值分数的文章
     original_count = len(picks)
     picks = [p for p in picks if int(p.get("score", 0)) >= MIN_SCORE_THRESHOLD]
