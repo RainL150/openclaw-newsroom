@@ -6,7 +6,7 @@
   python3 render_newsroom_html.py \
     --input /tmp/newscan_picks.xxxxxx \
     --output ~/.openclaw/workspace/outputs/newsroom-latest.html \
-    --title "OpenClaw Newsroom 四板块简报"
+    --title "OpenClaw Newsroom 简报"
 """
 
 import argparse
@@ -283,7 +283,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--input", required=True)
     ap.add_argument("--output", required=True)
-    ap.add_argument("--title", default="OpenClaw Newsroom 四板块简报")
+    ap.add_argument("--title", default="OpenClaw Newsroom 简报")
     args = ap.parse_args()
 
     in_path = Path(args.input)

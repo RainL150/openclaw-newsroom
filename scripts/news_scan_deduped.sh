@@ -501,7 +501,7 @@ if [ "$HTML_ENABLED" = "1" ] || [ "$HTML_ENABLED" = "true" ]; then
     if python3 "$SCRIPT_DIR/render_newsroom_html.py" \
       --input "$PICKS_FILE" \
       --output "$HTML_OUTPUT" \
-      --title "OpenClaw Newsroom 四板块简报" >/tmp/newsroom_html_path.log 2>/tmp/newsroom_html_err.log; then
+      --title "OpenClaw Newsroom 简报" >/tmp/newsroom_html_path.log 2>/tmp/newsroom_html_err.log; then
       HTML_PATH=$(cat /tmp/newsroom_html_path.log)
       echo "HTML 报告已生成：$HTML_PATH"
     else
