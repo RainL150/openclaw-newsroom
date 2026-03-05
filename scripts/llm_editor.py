@@ -842,9 +842,30 @@ def deduplicate_within_sections(picks):
             title = item.get("title", "")
             title_zh = item.get("title_zh", "")
             score = int(item.get("score", 0))
+            item_type = item.get("type", "rss")
 
-            # 提取核心实体作为去重标识
-            # 优先级：标题核心实体 > URL > 标题前缀
+            # GitHub 项目：仅按 URL 精确去重（保留更多项目）
+            if item_type == "github" or "github.com" in url.lower():
+                entity_key = url.lower().strip()
+                
+                if entity_key in seen_entities:
+                    existing = seen_entities[entity_key]
+                    existing_score = int(existing.get("score", 0))
+                    
+                    # 完全相同的 URL，保留更高分的
+                    if score > existing_score:
+                        log(f"  Replace GitHub (score {existing_score}→{score}): {url}")
+                        seen_entities[entity_key] = item
+                        total_removed += 1
+                    else:
+                        log(f"  Skip duplicate GitHub (same URL, score {score}<={existing_score}): {url}")
+                        total_removed += 1
+                        continue
+                else:
+                    seen_entities[entity_key] = item
+                continue
+
+            # 非 GitHub 项目：使用原有的实体提取逻辑
             entity_key = None
 
             # 方法1：提取标题中的核心实体（英文大写词组，如 "OpenAI GPT-5"）
@@ -1136,8 +1157,10 @@ def main():
             openrouter_api_key,
         )
 
-    # 第二阶段：板块内去重（跨所有 batch）
-    picks = deduplicate_within_sections(picks)
+    # 第二阶段：板块内去重（已禁用，保留所有候选项）
+    # picks = deduplicate_within_sections(picks)
+    log("\n=== Phase 2: Section-level deduplication (DISABLED) ===")
+    log(f"Skipping section-level dedup, keeping all {len(picks)} items")
 
     # 第三阶段：生成板块总结
     log("\n=== Phase 3: Generating section summaries ===")
