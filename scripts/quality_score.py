@@ -39,7 +39,9 @@ PRIORITY_SOURCES = {
 HIGH_VALUE_KEYWORDS = re.compile(
     r'\b(acqui|merger|billion|partnership|launch|release|'
     r'announce|breakthrough|regulation|ban|security|vulnerability|'
-    r'open.source|Pentagon|military|government|antitrust)\b',
+    r'open.source|Pentagon|military|government|antitrust|'
+    r'agent|workflow|automation|framework|trading|bot|'
+    r'skills|marketplace|CAD|3D|WhatsApp|integration)\b',
     re.IGNORECASE
 )
 
@@ -49,6 +51,11 @@ BREAKING_KEYWORDS = re.compile(
     r'officially|unveil|reveal)\b',
     re.IGNORECASE
 )
+
+# GitHub project type patterns (for additional scoring)
+GITHUB_EMERGING = re.compile(r'\[GitHub EMERGING\]', re.IGNORECASE)
+GITHUB_TRENDING = re.compile(r'\[GitHub TRENDING\]', re.IGNORECASE)
+GITHUB_HOT = re.compile(r'\[GitHub HOT\]', re.IGNORECASE)
 
 
 def title_similarity(t1, t2):
