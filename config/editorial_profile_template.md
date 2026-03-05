@@ -1,76 +1,50 @@
-# Editorial Profile — [YOUR_CHANNEL_NAME]
+# Editorial Profile — OpenClaw Newsroom（偏好层）
 
-> This profile is read by the AI editor (llm_editor.py) on every news scan.
-> It captures what you pick, what you skip, and what makes a story worth posting.
-> The "Approval History Stats" section is updated automatically by
-> update_editorial_profile.py based on your approval/rejection decisions.
+> 说明：本文件只负责“编辑偏好”。
+> 硬规则（输出字段、格式、枚举、结构）统一由 llm_editor.py 的主 Prompt 管控。
 
-## Identity
-- Channel: [YOUR_CHANNEL_NAME] on [Platform]
-- Editor: [Your Name]
-- Voice: [Describe your editorial voice — e.g., "Sharp, concise, no fluff. Breaking news > opinion. Facts > speculation."]
+## 频道定位
+- 频道：OpenClaw Newsroom
+- 语言：中文
+- 风格：结论优先、结构清晰、少空话、重事实
+- 目标：帮助读者快速理解“模型/应用/基建/公司”四类动态中的关键变化
 
-## What You Always Pick (high confidence)
-<!-- Stories in these categories almost always get posted. -->
-<!-- Examples — customize to YOUR interests: -->
-- Major AI company announcements (product launches, acquisitions, partnerships)
-- New model/architecture releases (especially novel approaches and benchmarks)
-- AI security incidents (hacks, prompt injection, model attacks)
-- AI + geopolitics (military applications, government regulation, trade policy)
-- Open-source model releases that challenge frontier models
-- Major funding rounds and M&A deals over $100M
+## 高优先选题（优先保留）
+- 重大模型发布/升级（有明确指标：准确率、幻觉率、推理效率、成本）
+- AI 安全事件（提示注入、凭据泄露、代理越权、供应链漏洞）
+- AI 与地缘政治/防务结合的实锤新闻
+- 高价值开源项目（对主流闭源模型形成竞争或替代）
+- 重大融资并购（尤其会改变产业格局）
 
-## What You Usually Pick (medium confidence)
-<!-- Sometimes posted, depends on the angle and timing. -->
-- NVIDIA and chip industry news (when market-moving)
-- Google/Apple AI product launches
-- Creative AI tools (image/video/music generation)
-- Major partnerships between tech companies
-- Original research reports with novel data points
+## 中优先选题（有亮点再上）
+- 一般产品迭代（若有明确用户价值或性能数据）
+- 行业研究/报告（若给出新数据、新方法或新结论）
+- 平台生态更新（若会影响开发者工作流）
 
-## What You Usually Skip (anti-patterns)
-<!-- The LLM editor will learn to avoid these over time. -->
-- Enterprise SaaS funding rounds under $50M
-- Generic "AI will change everything" opinion pieces
-- Routine product updates without a unique angle
-- Earnings reports (unless market-moving)
-- Crypto/blockchain/NFT/web3 crossover stories
-- Routine job market news (hiring, small layoffs)
-- Conference/event announcements
-- Podcast/interview promotions
+## 低优先/过滤项
 
-## Emerging Interests (watch for these)
-<!-- Topics you're starting to pay attention to. -->
-- GitHub repos gaining rapid traction (star velocity signals)
-- Tools/frameworks before they become mainstream
-- AI regulation and policy shifts
-- [Add your emerging interests here]
+- 无新信息的二手搬运
+- 纯观点文章（缺乏事实或数据）
+- 无明确业务价值的小更新
+- 宣传性活动稿（会议预告、播客预告等）
 
-## Source Trust Ranking
-<!-- Higher-tier sources get priority in scoring. -->
-<!-- Customize to match YOUR blogwatcher feed names. -->
-- Tier 1 (Wire): Bloomberg, Reuters, CNBC, Axios, Politico
-- Tier 2 (Tech Press): TechCrunch, The Verge, Ars Technica, Wired, The Decoder, 404 Media
-- Tier 3 (Aggregator): VentureBeat, SiliconANGLE, 9to5Google, Crunchbase News
-- Tier 4 (Community): Reddit (r/singularity, r/ClaudeAI, r/LocalLLaMA), Hacker News
-- Tier 5 (Primary): Company blogs, GitHub repos, research papers
+## 打分倾向（用于同类新闻取舍）
+- 事实强度（是否可验证、是否有数据/官方来源）
+- 行业影响（是否影响广泛人群、产业链或政策）
+- 时效性（是否具有新近事件价值）
+- 可执行价值（读者是否能据此调整决策/行动）
 
-## Story Selection Rules
-1. Every scan MUST produce at least 5 stories (broaden scope if needed)
-2. No exact duplicates of previously posted stories
-3. Same event from different angles = OK if the angle is genuinely new
-4. Prefer concrete news (X acquired Y, X launched Z) over speculation
-5. Prefer exclusives and scoops over recycled takes
-6. Max 2 stories from the same source per scan (diversity)
-7. Include 1 sentence summary explaining WHY this story matters
-8. If a GitHub repo is trending AND relevant, include it
+## 板块倾向微调
+- 模型层面：优先“能力提升 + 成本下降”同时成立的新闻
+- 应用层面：优先“真实工作流落地”而非概念演示
+- 基建层面：优先“性能/成本/安全”三者之一有显著改进
+- 公司层面：优先“组织或资本动作会改变竞争格局”的新闻
 
-## Approval History Stats
-<!-- This section is auto-populated by update_editorial_profile.py -->
-<!-- It analyzes your approval/rejection patterns and updates nightly -->
-- No decisions logged yet.
-- Tracking begins when you approve/skip stories in editorial_decisions.md.
+## 去重偏好
+- 同一事件多来源：若角度明显不同可保留
+- 倾向“新增信息量更高”的版本
 
-## Scanner Blind Spots
-<!-- Auto-detected: topics you manually seek out but the scanner misses -->
-<!-- Populated by update_editorial_profile.py after enough decisions -->
+## 质量底线
+- 标题可保留原文，但结论与说明要中文可读
+- 少形容词，多事实与判断依据
+- 不输出无法自证的夸张结论

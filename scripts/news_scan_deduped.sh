@@ -25,21 +25,19 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # ── Parse arguments ──────────────────────────────────────────────────
-TOP_N=7
-
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --top) TOP_N="$2"; shift 2 ;;
+    --top)
+      echo "Info: --top 已废弃（当前使用按板块输出，不做全局 Top N 截断）"
+      shift 2 ;;
     -h|--help)
-      echo "Usage: $0 [--top N]"
-      echo "  --top N   Number of stories to curate (default: 7)"
+      echo "Usage: $0"
+      echo "当前版本：按四板块分类并排序输出，不再使用全局 --top。"
       exit 0
       ;;
     *) echo "Unknown arg: $1"; exit 1 ;;
   esac
 done
-
-export TOP_N
 
 # ── Temp files (cleaned up on exit) ─────────────────────────────────
 ARTICLES_FILE=$(mktemp /tmp/newscan_articles.XXXXXX)
@@ -53,6 +51,8 @@ PERSISTENT_GITHUB="$SCRIPT_DIR/../memory/last_scan_github.txt"
 GITHUB_FILE=$(mktemp /tmp/newscan_github.XXXXXX)
 TWITTER_RAW=$(mktemp /tmp/newscan_twitter.XXXXXX)
 PICKS_FILE=$(mktemp /tmp/newscan_picks.XXXXXX)
+HTML_ENABLED="${NEWSROOM_HTML_ENABLED:-1}"
+HTML_OUTPUT="${NEWSROOM_HTML_OUTPUT:-$SCRIPT_DIR/../outputs/newsroom-latest.html}"
 
 cleanup() {
   rm -f "$ARTICLES_FILE" "$REDDIT_FILE" "$TAVILY_FILE" "$TWITTER_API_FILE" \
@@ -70,7 +70,7 @@ TAVILY_COUNT=0
 PICKS_COUNT=0
 
 echo "═══════════════════════════════════════════════════════════"
-echo "  News Scanner v2 (top $TOP_N)"
+echo "  News Scanner v2 (四板块模式)"
 echo "═══════════════════════════════════════════════════════════"
 echo ""
 
@@ -246,7 +246,7 @@ TOTAL_RAW=$((RSS_COUNT + REDDIT_COUNT + TWITTER_COUNT + TWITTER_API_COUNT + TAVI
 echo "Quality scoring ($TOTAL_RAW candidates)..."
 
 if [ "$TOTAL_RAW" -gt 0 ]; then
-  python3 "$SCRIPT_DIR/quality_score.py" --input "$ARTICLES_FILE" --max 50 > "$SCORED_FILE" 2>/dev/null
+  python3 "$SCRIPT_DIR/quality_score.py" --input "$ARTICLES_FILE" --max 500 > "$SCORED_FILE" 2>/dev/null
   SCORED_COUNT=$(wc -l < "$SCORED_FILE" | tr -d ' ')
   echo "  Top $SCORED_COUNT articles after scoring + dedup"
 else
@@ -261,7 +261,7 @@ echo ""
 echo "Enriching top articles with full text..."
 
 if [ "$SCORED_COUNT" -gt 0 ]; then
-  if /usr/local/bin/timeout 60s python3 "$SCRIPT_DIR/enrich_top_articles.py" --input "$SCORED_FILE" --max 8 --max-chars 1200 > "$ENRICHED_FILE" 2>/dev/null; then
+  if /usr/local/bin/timeout 60s python3 "$SCRIPT_DIR/enrich_top_articles.py" --input "$SCORED_FILE" --max 500 --max-chars 1200 > "$ENRICHED_FILE" 2>/dev/null; then
     echo "  Enrichment complete"
   else
     echo "  Warning: Enrichment failed (using scored articles without full text)"
@@ -294,7 +294,7 @@ fi
 LLM_SUCCESS=true
 if eval "$LLM_CMD" > "$PICKS_FILE" 2>/tmp/llm_editor.log; then
   PICKS_COUNT=$(wc -l < "$PICKS_FILE" | tr -d ' ')
-  echo "  LLM selected $PICKS_COUNT stories"
+  echo "  LLM 已完成分板块排序输出（共 $PICKS_COUNT 条）"
 else
   echo "  Warning: LLM editor failed (see /tmp/llm_editor.log)"
   LLM_SUCCESS=false
@@ -315,26 +315,86 @@ echo ""
 if [ "$LLM_SUCCESS" = false ] || [ ! -s "$PICKS_FILE" ]; then
   echo "Warning: LLM curation unavailable — showing raw top articles:"
   echo ""
-  head -"$TOP_N" "$ENRICHED_FILE" | while IFS='|' read -r title url source rest; do
+
+  # 生成 fallback 的结构化 picks，供后续 HTML 渲染使用
+  python3 - << 'PY' "$ENRICHED_FILE" "$PICKS_FILE" "${RAW_FALLBACK_MAX:-20}"
+import sys, json
+from pathlib import Path
+
+infile = Path(sys.argv[1])
+outfile = Path(sys.argv[2])
+max_items = int(sys.argv[3])
+
+def infer_section(title, source):
+    t = f"{title} {source}".lower()
+    if any(k in t for k in ["model", "benchmark", "llm", "gpt", "claude", "llama", "推理", "训练", "权重"]):
+        return "模型层面（Model）"
+    if any(k in t for k in ["gateway", "infra", "infrastructure", "部署", "latency", "cost", "gpu", "带宽", "存储"]):
+        return "基建层面（Infrastructure）"
+    if any(k in t for k in ["acquire", "fund", "融资", "并购", "company", "战略", "market", "industry"]):
+        return "公司层面（Company/Industry）"
+    return "应用层面（Application）"
+
+summary_map = {
+    "模型层面（Model）": "一句话总趋势：模型能力竞争转向效率与可控性并重。\n关键词：\n- 降本\n- 推理结构控制\n- Benchmark化\n最大主题：以更低成本获得可用智能\n核心问题：高性能与可部署性的平衡\n典型方向：\n- 小模型高效化\n- 评测标准强化",
+    "应用层面（Application）": "一句话总趋势：AI 应用从演示型进入真实工作流闭环。\n关键词：\n- Agent工具化\n- 工作流自动化\n- 端侧落地\n最大主题：提升业务端到端效率\n核心问题：可靠执行与可观测性\n典型方向：\n- 多步骤任务编排\n- 人机协同界面优化",
+    "基建层面（Infrastructure）": "一句话总趋势：基建重点从堆算力转向控成本与稳质量。\n关键词：\n- 智能路由\n- Token优化\n- 语义缓存\n最大主题：降低 LLM 总拥有成本\n核心问题：高并发下的性能与费用平衡\n典型方向：\n- 请求分层调度\n- Prompt外部化管理",
+    "公司层面（Company/Industry）": "一句话总趋势：产业进入并购整合与生态卡位阶段。\n关键词：\n- 融资并购\n- 战略联盟\n- 行业分化\n最大主题：头部公司重塑价值链\n核心问题：规模扩张与利润模型\n典型方向：\n- 垂直整合\n- 出海与区域化布局",
+}
+
+rows = []
+if infile.exists():
+    for line in infile.read_text(encoding='utf-8', errors='ignore').splitlines():
+        if not line.strip():
+            continue
+        parts = line.split('|')
+        if len(parts) < 3:
+            continue
+        title, url, source = parts[0].strip(), parts[1].strip(), parts[2].strip()
+        rows.append((title, url, source))
+
+out = []
+for i, (title, url, source) in enumerate(rows[:max_items], 1):
+    story_type = "github" if "github.com" in url else ("twitter" if ("x.com/" in url or "twitter.com/" in url) else "rss")
+    section = infer_section(title, source)
+    out.append({
+        "rank": i,
+        "title": title,
+        "url": url,
+        "source": source,
+        "type": story_type,
+        "summary": "（Fallback）当前为降级模式，建议检查 LLM 配置以恢复高质量总结。",
+        "category": "other",
+        "section": section,
+        "score": max(1, 100 - i),
+        "section_summary": summary_map[section],
+    })
+
+with outfile.open('w', encoding='utf-8') as f:
+    for r in out:
+        f.write(json.dumps(r, ensure_ascii=False) + "\n")
+PY
+
+  head -"${RAW_FALLBACK_MAX:-20}" "$ENRICHED_FILE" | while IFS='|' read -r title url source rest; do
     is_tweet=""
     if echo "$source" | grep -q "(tweet)"; then
       is_tweet="yes"
     fi
     if [ -n "$is_tweet" ]; then
-      echo "  [tweet] $title"
+      echo "  [推文] $title"
     else
       echo "  * $title"
     fi
     if [ -n "$url" ]; then
       if [ -n "$is_tweet" ]; then
-        echo "    View tweet: $url"
+        echo "    推文链接：$url"
       else
-        echo "    Link: $url"
+        echo "    链接：$url"
       fi
     fi
     source_clean=$(echo "$source" | sed 's/ (tweet)//')
     if [ -n "$source_clean" ]; then
-      echo "    Source: $source_clean"
+      echo "    来源：$source_clean"
     fi
     echo ""
     echo "---"
@@ -343,6 +403,7 @@ if [ "$LLM_SUCCESS" = false ] || [ ! -s "$PICKS_FILE" ]; then
 else
   python3 -c '
 import sys, json
+from collections import OrderedDict
 
 picks_file = sys.argv[1]
 
@@ -351,51 +412,104 @@ EMOJI_MAP = {
     "twitter": "[tweet]",
     "github": "[github]",
 }
+SECTION_ORDER = [
+    "模型层面（Model）",
+    "应用层面（Application）",
+    "基建层面（Infrastructure）",
+    "公司层面（Company/Industry）",
+]
 
+rows = []
 with open(picks_file, "r") as f:
-    lines = f.readlines()
+    for line in f:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            rows.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
 
-total = sum(1 for l in lines if l.strip())
+# 全局按分数降序，再按 rank
+rows.sort(key=lambda x: (int(x.get("score", 0)), -int(x.get("rank", 0))), reverse=True)
 
-for i, line in enumerate(lines):
-    line = line.strip()
-    if not line:
+grouped = OrderedDict((k, []) for k in SECTION_ORDER)
+for r in rows:
+    sec = r.get("section", "应用层面（Application）")
+    if sec not in grouped:
+        grouped[sec] = []
+    grouped[sec].append(r)
+
+for sec in SECTION_ORDER:
+    items = grouped.get(sec, [])
+    if not items:
         continue
-    try:
-        pick = json.loads(line)
-    except json.JSONDecodeError:
-        continue
-
-    rank = pick.get("rank", "?")
-    title = pick.get("title", "(no title)")
-    summary = pick.get("summary", "")
-    url = pick.get("url", "")
-    source = pick.get("source", "unknown")
-    category = pick.get("category", "other")
-    story_type = pick.get("type", "rss")
-
-    is_tweet = "(tweet)" in source
-
-    if is_tweet:
-        tag = "[tweet]"
-    else:
-        tag = EMOJI_MAP.get(story_type, "[article]")
-
-    print(f"{rank}. {tag} {title}")
-    if summary:
-        print(f"   Why: {summary}")
-    if url:
-        if is_tweet:
-            print(f"   View tweet: {url}")
-        else:
-            print(f"   Link: {url}")
-    source_display = source.replace(" (tweet)", "")
-    print(f"   Source: {source_display} [{category}]")
+    print(f"## {sec}")
+    sec_summary = ""
+    for it in items:
+        s = it.get("section_summary", "").strip()
+        if s:
+            sec_summary = s
+            break
+    if sec_summary:
+        print(f"板块总结：{sec_summary}")
     print()
-    if i < len(lines) - 1:
-        print("---")
+
+    for idx, pick in enumerate(items):
+        rank = pick.get("rank", "?")
+        score = pick.get("score", 0)
+        title = pick.get("title", "(no title)")
+        summary = pick.get("summary", "")
+        url = pick.get("url", "")
+        source = pick.get("source", "unknown")
+        category = pick.get("category", "other")
+        story_type = pick.get("type", "rss")
+        channel = pick.get("channel", "")
+
+        is_tweet = "(tweet)" in source
+        tag = "[tweet]" if is_tweet else EMOJI_MAP.get(story_type, "[article]")
+
+        print(f"{rank}. {tag} {title}（score={score}）")
+        if summary:
+            print(f"   总结：{summary}")
+        if url:
+            if is_tweet:
+                print(f"   推文链接：{url}")
+            else:
+                print(f"   链接：{url}")
+        source_display = source.replace(" (tweet)", "")
+        if channel:
+            print(f"   来源：{source_display} [{category}] · 渠道：{channel}")
+        else:
+            print(f"   来源：{source_display} [{category}]")
         print()
+        if idx < len(items) - 1:
+            print("---")
+            print()
+
+    print("==============================")
+    print()
 ' "$PICKS_FILE"
+fi
+
+# ═════════════════════════════════════════════════════════════════════
+# OPTIONAL: Render fixed-template HTML report
+# Controlled by NEWSROOM_HTML_ENABLED=1
+# ═════════════════════════════════════════════════════════════════════
+if [ "$HTML_ENABLED" = "1" ] || [ "$HTML_ENABLED" = "true" ]; then
+  if [ -s "$PICKS_FILE" ]; then
+    if python3 "$SCRIPT_DIR/render_newsroom_html.py" \
+      --input "$PICKS_FILE" \
+      --output "$HTML_OUTPUT" \
+      --title "OpenClaw Newsroom 四板块简报" >/tmp/newsroom_html_path.log 2>/tmp/newsroom_html_err.log; then
+      HTML_PATH=$(cat /tmp/newsroom_html_path.log)
+      echo "HTML 报告已生成：$HTML_PATH"
+    else
+      echo "  Warning: HTML 渲染失败（详见 /tmp/newsroom_html_err.log）"
+    fi
+  else
+    echo "跳过 HTML 渲染：当前无 LLM picks（PICKS_FILE 为空）"
+  fi
 fi
 
 # ═════════════════════════════════════════════════════════════════════

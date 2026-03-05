@@ -6,7 +6,9 @@ Scans GitHub for trending AI/ML repos using three strategies:
   2. Velocity: established repos (1000+ stars) gaining traction fast
   3. Releases: new releases from key AI repos (SDKs, models, tools)
 
-Output format:  TITLE|URL|SOURCE|TIER
+Output format:  TITLE|URL|SOURCE|TIER|EXCERPT
+  - TITLE: 简洁的标题（仓库名 + 标签）
+  - EXCERPT: 仓库描述，供 LLM 生成中文总结
 Compatible with the news scan pipeline.
 
 Uses only stdlib — no pip packages. Auth via GH_TOKEN env var if available
@@ -154,11 +156,13 @@ def scan_emerging():
         for repo in repos:
             full_name = repo["full_name"]
             stars = repo.get("stargazers_count", 0)
-            desc = (repo.get("description") or "No description").replace("|", "-")
+            desc = (repo.get("description") or "No description").replace("|", " ").replace("\n", " ")
             url = repo.get("html_url", f"https://github.com/{full_name}")
             lang = detect_language(repo)
-            title = f"[GitHub EMERGING] {full_name} (+{stars} stars): {desc}"
-            results.append((title, url, f"GitHub/{lang}", stars, full_name))
+            # 标题只包含仓库名和 star 数
+            title = f"[GitHub EMERGING] {full_name} (+{stars} stars)"
+            # 将描述作为 excerpt 传递，这样 LLM 可以基于描述生成中文总结
+            results.append((title, url, f"GitHub/{lang}", stars, full_name, desc))
         time.sleep(0.5)
     return results
 
@@ -181,7 +185,7 @@ def scan_velocity(state):
         for repo in repos:
             full_name = repo["full_name"]
             stars = repo.get("stargazers_count", 0)
-            desc = (repo.get("description") or "No description").replace("|", "-")
+            desc = (repo.get("description") or "No description").replace("|", " ").replace("\n", " ")
             url = repo.get("html_url", f"https://github.com/{full_name}")
             lang = detect_language(repo)
             new_repos[full_name] = {"stars": stars}
@@ -189,11 +193,11 @@ def scan_velocity(state):
             growth = (stars - prev_stars) if prev_stars is not None else 0
 
             if growth >= VELOCITY_GROWTH_MIN:
-                title = f"[GitHub TRENDING] {full_name} (+{growth} stars): {desc}"
-                results.append((title, url, f"GitHub/{lang}", growth, full_name))
+                title = f"[GitHub TRENDING] {full_name} (+{growth} stars)"
+                results.append((title, url, f"GitHub/{lang}", growth, full_name, desc))
             elif stars >= VELOCITY_ALWAYS_IF:
-                title = f"[GitHub HOT] {full_name} ({stars:,} total stars): {desc}"
-                results.append((title, url, f"GitHub/{lang}", 0, full_name))
+                title = f"[GitHub HOT] {full_name} ({stars:,} total stars)"
+                results.append((title, url, f"GitHub/{lang}", 0, full_name, desc))
         time.sleep(0.5)
 
     merged_repos = {**old_repos}
@@ -241,12 +245,12 @@ def scan_releases():
             tag = release.get("tag_name", "")
             name = release.get("name", tag)
             html_url = release.get("html_url", f"https://github.com/{repo_name}")
-            body = (release.get("body") or "")[:100].replace("|", "-").replace("\n", " ")
+            body = (release.get("body") or "")[:200].replace("|", " ").replace("\n", " ")
 
-            title = f"[GitHub RELEASE] {repo_name} {tag}: {name}"
-            if body:
-                title += f" — {body}"
-            results.append((title, html_url, "GitHub/Releases", 0, repo_name))
+            title = f"[GitHub RELEASE] {repo_name} {tag}"
+            # 将 release name 和 body 作为描述
+            desc = f"{name}. {body}" if body else name
+            results.append((title, html_url, "GitHub/Releases", 0, repo_name, desc))
             break
         time.sleep(0.3)
     return results
@@ -264,33 +268,35 @@ def main():
     log("\n--- Strategy 1: Emerging repos ---")
     emerging = scan_emerging()
     emerging.sort(key=lambda x: x[3], reverse=True)
-    for title, url, source, velocity, full_name in emerging:
+    for title, url, source, velocity, full_name, excerpt in emerging:
         if full_name not in seen_repos:
             seen_repos.add(full_name)
-            output_lines.append((title, url, source, TIER))
+            output_lines.append((title, url, source, TIER, excerpt))
 
     log("\n--- Strategy 2: Velocity ---")
     velocity_results, merged_repos = scan_velocity(state)
     velocity_results.sort(key=lambda x: x[3], reverse=True)
-    for title, url, source, velocity, full_name in velocity_results:
+    for title, url, source, velocity, full_name, excerpt in velocity_results:
         if full_name not in seen_repos:
             seen_repos.add(full_name)
-            output_lines.append((title, url, source, TIER))
+            output_lines.append((title, url, source, TIER, excerpt))
 
     log("\n--- Strategy 3: Releases ---")
     releases = scan_releases()
-    for title, url, source, _, full_name in releases:
+    for title, url, source, _, full_name, excerpt in releases:
         if full_name not in seen_repos:
             seen_repos.add(full_name)
-            output_lines.append((title, url, source, TIER))
+            output_lines.append((title, url, source, TIER, excerpt))
 
     output_lines = output_lines[:MAX_OUTPUT]
 
     if not output_lines:
         log("No trending repos found.")
     else:
-        for title, url, source, tier in output_lines:
-            print(f"{title}|{url}|{source}|{tier}")
+        for title, url, source, tier, excerpt in output_lines:
+            # 输出格式：TITLE|URL|SOURCE|TIER|EXCERPT
+            # excerpt 包含描述信息，供 LLM 生成中文总结
+            print(f"{title}|{url}|{source}|{tier}|{excerpt}")
 
     state["repos"] = merged_repos
     state["last_run"] = datetime.now(timezone.utc).isoformat()

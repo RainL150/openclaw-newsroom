@@ -64,7 +64,7 @@ SOURCE_TIERS = {
     'Crunchbase News': 2, 'Wired AI': 2, 'MIT Tech Review': 2, 'Google AI Blog': 2,
     'Hugging Face Blog': 2, 'Simon Willison': 2, 'Latent Space': 2,
     # T3: Aggregator / community press / analysis
-    'Hacker News AI': 3, 'SiliconANGLE AI': 3, 'AI News': 3,
+    'Hacker News AI': 3, 'HN AI': 3, 'HN LLM': 3, 'SiliconANGLE AI': 3, 'AI News': 3,
     'Gary Marcus': 3, 'Bens Bites': 3,
 }
 
