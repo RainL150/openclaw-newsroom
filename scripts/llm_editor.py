@@ -64,6 +64,7 @@ VALID_SECTIONS = {
 VALID_CHANNELS = {"RSS", "Reddit", "X/Twitter", "GitHub", "Tavily"}
 SECTION_MAX_ITEMS = int(os.environ.get("SECTION_MAX_ITEMS", "40"))
 LLM_BATCH_SIZE = int(os.environ.get("LLM_BATCH_SIZE", "30"))
+MIN_SCORE_THRESHOLD = int(os.environ.get("MIN_SCORE_THRESHOLD", "60"))
 
 
 def log(msg):
@@ -696,7 +697,7 @@ def main():
         sys.exit(1)
 
     active_model = GEMINI_MODEL if selected_provider == "gemini" else OPENROUTER_MODEL
-    log(f"Configuration: provider={selected_provider}, model={active_model}, section_max={SECTION_MAX_ITEMS}")
+    log(f"Configuration: provider={selected_provider}, model={active_model}, section_max={SECTION_MAX_ITEMS}, min_score={MIN_SCORE_THRESHOLD}")
 
     log(f"Loading articles from {args.file}")
     articles = parse_articles(args.file)
@@ -784,12 +785,24 @@ def main():
             gemini_api_key,
             openrouter_api_key,
         )
+    
+    # 精选过滤：筛掉低于阈值分数的文章
+    original_count = len(picks)
+    picks = [p for p in picks if int(p.get("score", 0)) >= MIN_SCORE_THRESHOLD]
+    filtered_count = original_count - len(picks)
+    if filtered_count > 0:
+        log(f"Filtered out {filtered_count} low-score articles (score < {MIN_SCORE_THRESHOLD})")
+    
+    # 重新排序并更新 rank
+    picks.sort(key=lambda x: (x.get("section", ""), int(x.get("score", 0)) * -1))
+    for i, p in enumerate(picks, 1):
+        p["rank"] = i
 
     for pick in picks:
         print(json.dumps(pick, ensure_ascii=False))
 
     log_to_scanner_presented(picks)
-    log(f"Done. {len(picks)} stories classified.")
+    log(f"Done. {len(picks)} stories classified (filtered from {original_count}).")
 
 
 if __name__ == "__main__":

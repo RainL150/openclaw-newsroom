@@ -209,6 +209,11 @@ Or export them in your shell for testing:
 export GEMINI_API_KEY="your-key"
 export GH_TOKEN="your-token"
 export TAVILY_API_KEY="your-key"
+
+# Optional: 配置 LLM 编辑器参数
+export MIN_SCORE_THRESHOLD=60      # 最低分数阈值（默认 60，低于此分数的文章会被过滤）
+export SECTION_MAX_ITEMS=40        # 每个板块最多文章数（默认 40）
+export LLM_BATCH_SIZE=15           # LLM 批次大小（默认 15）
 ```
 
 ### Step 5: Create the Cron Job
