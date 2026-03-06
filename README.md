@@ -43,7 +43,7 @@ OpenClaw Gateway
 │       └── Curates via llm_editor.py (Gemini Flash API)
 │
 ├── Agent receives the pipeline output
-│   └── Formats and delivers to your channel (Telegram, Slack, etc.)
+│   └── Formats and delivers to your channel (Feishu, Telegram, Slack, etc.)
 │
 ├── Nightly cron (optional)
 │   └── Runs update_editorial_profile.py to learn from your approvals/rejections
@@ -62,8 +62,8 @@ OpenClaw Gateway
 1. **Scripts live in** `~/.openclaw/workspace/scripts/` — OpenClaw's standard location for agent-callable scripts
 2. **Memory files live in** `~/.openclaw/workspace/memory/` — persistent across sessions
 3. **The cron job** uses `sessionTarget: "isolated"` so each scan gets a clean session (no context contamination)
-4. **The agent model** (e.g., Kimi K2.5) orchestrates the pipeline. The actual AI curation uses Gemini Flash directly via API — so your cron model doesn't need to be expensive
-5. **Delivery** is handled by OpenClaw's channel system (Telegram, Slack, etc.)
+4. **The agent model** orchestrates the pipeline. You can use the agent's default model because the actual AI curation uses Gemini Flash directly via API
+5. **Delivery** is handled by OpenClaw's channel system (Feishu, Telegram, Slack, etc.)
 
 **Not using OpenClaw?** The scripts work standalone too — just run `./news_scan_deduped.sh` from a regular cron job or shell. The only OpenClaw-specific parts are the cron job setup and channel delivery.
 
@@ -89,15 +89,15 @@ OpenClaw Gateway
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  quality_score.py   → Score + dedup (80% title similarity)      │
-│                       Output: top 50 scored candidates          │
+│                       Output: up to 500 scored candidates       │
 │                                                                 │
-│  enrich_top_articles.py → Fetch full text for top 8 articles    │
+│  enrich_top_articles.py → Fetch full text for scored articles   │
 │                           CF Markdown preferred, HTML fallback  │
 │                                                                 │
 │  llm_editor.py      → Gemini Flash editorial curation           │
 │                       Reads editorial_profile.md for guidance   │
 │                       Checks news_log.md to avoid repeats       │
-│                       Output: top 7 ranked picks (JSON)         │
+│                       Output: sectioned ranked picks (JSON)     │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -209,32 +209,72 @@ Or export them in your shell for testing:
 export GEMINI_API_KEY="your-key"
 export GH_TOKEN="your-token"
 export TAVILY_API_KEY="your-key"
+export TWITTERAPI_IO_KEY="your-key"
 
 # Optional: 配置 LLM 编辑器参数
 export MIN_SCORE_THRESHOLD=60      # 最低分数阈值（默认 60，低于此分数的文章会被过滤）
 export SECTION_MAX_ITEMS=40        # 每个板块最多文章数（默认 40）
-export LLM_BATCH_SIZE=15           # LLM 批次大小（默认 15）
+export LLM_BATCH_SIZE=30           # LLM 批次大小（默认 30）
+
+# Optional: 配置输出文件
+export NEWSROOM_OUTPUT_DIR="$HOME/.openclaw/workspace/outputs"
+export NEWSROOM_TZ="Asia/Shanghai"  # 影响输出文件时间戳
+export NEWSROOM_HTML_ENABLED=1      # 是否生成 HTML 报告（默认 1）
+
+# Optional: 手动覆盖输出文件名（通常不需要）
+export NEWSROOM_RUN_MD_OUTPUT="$HOME/.openclaw/workspace/outputs/newsroom-run-custom.md"
+export NEWSROOM_HTML_OUTPUT="$HOME/.openclaw/workspace/outputs/newsroom-run-custom.html"
+export NEWSROOM_RUN_TIMESTAMP="20260305-192427"
 ```
+
+**输出文件默认规则：**
+- 原始输出归档：`$NEWSROOM_OUTPUT_DIR/newsroom-run-YYYYMMDD-HHMMSS.md`
+- HTML 报告：`$NEWSROOM_OUTPUT_DIR/newsroom-run-YYYYMMDD-HHMMSS.html`
+- 时间戳默认按 `NEWSROOM_TZ` 生成；若未设置，则默认使用 `Asia/Shanghai`
 
 ### Step 5: Create the Cron Job
 
-Add the news scan as an OpenClaw cron job:
+Add the news scan as an OpenClaw cron job.
 
+**中国时间 + 飞书群示例：**
 ```bash
 openclaw cron add \
-  --name "Bi-Hourly News Scan" \
+  --name "AI News Scan CN" \
   --cron "40 9,11,13,15,17,19,21 * * *" \
-  --message "Run the Gen AI news scanner: bash ~/.openclaw/workspace/scripts/news_scan_deduped.sh" \
+  --message "Run the Gen AI news scanner and archive the original output: bash ~/.openclaw/workspace/scripts/news_scan_deduped.sh" \
   --agent main \
-  --model "kimi-coding/k2p5" \
   --announce \
-  --channel telegram \
-  --tz "America/New_York"
+  --channel feishu \
+  --tz "Asia/Shanghai"
 ```
 
-**Schedule breakdown:** Runs at :40 past the hour at 9am, 11am, 1pm, 3pm, 5pm, 7pm, 9pm. Adjust the hours and timezone to match your audience.
+**如果你希望在任务结束后额外提示本次 `.md/.html` 归档文件，可以改用包装脚本：**
+```bash
+openclaw cron add \
+  --name "AI News Scan CN With Files" \
+  --cron "40 9,11,13,15,17,19,21 * * *" \
+  --message "Run the Gen AI news scanner and show archived file paths: bash ~/.openclaw/workspace/scripts/news_scan_with_files.sh" \
+  --agent main \
+  --announce \
+  --channel feishu \
+  --tz "Asia/Shanghai"
+```
 
-**Model choice:** The cron job uses a cheap/mid-tier model (like Kimi K2.5) to orchestrate the pipeline. The actual AI curation happens via Gemini Flash API directly (called by `llm_editor.py`), so the cron model doesn't need to be expensive.
+**这条 cron 会做什么：**
+- 把脚本标准输出发送到飞书群
+- 额外生成 2 份文件：
+  - `outputs/newsroom-run-YYYYMMDD-HHMMSS.md`：本次运行的原始输出归档（带时间戳）
+  - `outputs/newsroom-run-YYYYMMDD-HHMMSS.html`：本次运行的 HTML 完整报告（带时间戳）
+- 在输出里打印这 2 个文件的 `file://` 路径，便于 Agent/人工二次发送
+
+> **注意**：cron 本身稳定保证的是“文本输出会发到飞书群”。`md/html` 文件是否会作为附件自动发到飞书，取决于你的 OpenClaw Agent / 飞书通道是否支持文件发送。如果通道支持识别 `file://` 路径或文件附件发送，就可以一并发出；否则至少会把文件路径和文本摘要发到群里。
+
+**时间说明：**
+- `--tz "Asia/Shanghai"` 表示按中国时间执行
+- 当前 cron 表达式表示每天北京时间 `09:40 / 11:40 / 13:40 / 15:40 / 17:40 / 19:40 / 21:40`
+- 如果你希望输出文件名里的时间戳也使用中国时间，请确保环境变量里设置了 `NEWSROOM_TZ="Asia/Shanghai"`
+
+**Model choice:** You can omit `--model` and let OpenClaw use the default model for the selected agent. The actual AI curation still happens via Gemini Flash API directly (called by `llm_editor.py`), so the cron-side orchestration model is not critical.
 
 ### Step 6: Test the Pipeline
 
@@ -242,13 +282,13 @@ Run a manual test:
 
 ```bash
 cd ~/.openclaw/workspace/scripts
-./news_scan_deduped.sh --top 5
+./news_scan_deduped.sh
 ```
 
 You should see output like:
 ```
 ═══════════════════════════════════════════════════════════
-  📡 [YOUR_CHANNEL_NAME] — News Scanner v2 (top 5)
+  News Scanner v2 (四板块模式)
 ═══════════════════════════════════════════════════════════
 
 📰 [1/5] Scanning RSS feeds...
@@ -302,17 +342,21 @@ Scores every article based on:
 - Breaking news signals (exclusive, confirmed, first look, etc.)
 - Title quality (length heuristic)
 
-Deduplicates by title similarity (80% threshold using SequenceMatcher). Outputs top 50.
+Deduplicates by title similarity (80% threshold using SequenceMatcher). In the main pipeline it outputs up to 500 scored candidates.
 
 ### 9. `enrich_top_articles.py` — Full Text Fetcher
-Fetches full article text for the top 8 scored articles. Tries Cloudflare Markdown for Agents first (clean markdown), falls back to HTML extraction. Skips paywalled sites. 1200 character cap per article.
+Fetches full article text for scored candidates in the pipeline (currently invoked with `--max 500 --max-chars 1200`). Tries Cloudflare Markdown for Agents first (clean markdown), falls back to HTML extraction. Skips paywalled sites.
 
 ### 10. `llm_editor.py` — LLM Editorial Curation
-The AI brain of the pipeline. Sends all scored candidates + editorial profile + recent post history to Gemini Flash. The LLM selects the top N stories, ranks them, assigns categories, and writes 1-sentence summaries.
+The AI brain of the pipeline. Sends scored candidates + GitHub candidates + editorial profile + recent post history to Gemini Flash. The LLM classifies stories into four sections, assigns scores, writes Chinese summaries, and returns structured JSON.
 
 Features:
 - Deterministic URL pre-filter (skips already-posted URLs before calling the LLM)
 - Editorial profile integration (learns your preferences over time)
+- Four-section output: Model / Application / Infrastructure / Company
+- Section summaries for each board
+- Section-level dedup is currently disabled to preserve candidate coverage
+- Final filtering by `MIN_SCORE_THRESHOLD`
 - Structured JSON output with validation
 - Graceful fallback to raw scoring if LLM fails
 - Logs all presented stories to `scanner_presented.md`
@@ -366,6 +410,7 @@ openclaw-news-scan/
 ├── README.md                              # This file
 ├── scripts/
 │   ├── news_scan_deduped.sh              # Main orchestrator
+│   ├── news_scan_with_files.sh           # Wrapper that prints archived file paths
 │   ├── filter_ai_news.sh                 # RSS keyword filter
 │   ├── fetch_reddit_news.py              # Reddit JSON API
 │   ├── scan_twitter_ai.sh               # Twitter bird CLI
@@ -376,6 +421,9 @@ openclaw-news-scan/
 │   ├── enrich_top_articles.py           # Full text fetcher
 │   ├── llm_editor.py                    # LLM editorial curation
 │   └── update_editorial_profile.py      # Editorial profile updater
+├── outputs/
+│   ├── newsroom-run-YYYYMMDD-HHMMSS.md  # Archived raw stdout for each run
+│   └── newsroom-run-YYYYMMDD-HHMMSS.html # Archived HTML report for each run
 └── config/
     └── editorial_profile_template.md     # Template — customize for your channel
 ```
@@ -388,11 +436,11 @@ openclaw-news-scan/
 RSS (25 feeds) ─────────┐
 Reddit (13 subs) ───────┤
 Twitter (bird + API) ───┤──→ quality_score.py ──→ enrich_top_articles.py ──→ llm_editor.py ──→ Output
-GitHub (trending+rel) ──┤       (max 50)              (max 8)              (Gemini Flash)
+GitHub (trending+rel) ──┤       (max 500)             (max 500)            (Gemini Flash)
 Tavily (5 queries) ─────┘
 ```
 
-**Typical run:** ~100 raw articles → 50 scored → 8 enriched → 5-7 curated picks
+**Typical run:** ~100 raw articles → dozens/hundreds scored → sectioned LLM picks → raw stdout archive + html output
 
 ---
 
