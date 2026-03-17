@@ -109,7 +109,7 @@ OpenClaw Gateway
 ### Required
 - **OpenClaw** (v2026.2.23+) — the AI agent platform that runs the cron job
 - **Python 3.9+** — all scripts use stdlib only (no pip packages)
-- **blogwatcher** — RSS feed scanner (`brew install blogwatcher` or equivalent)
+- **blogwatcher** — RSS feed scanner (`brew install blogwatcher` or equivalent). For guided installation, use the OpenClaw skill: [openclaw-skill-blogwatcher](https://github.com/RainL150/openclaw-skill-blogwatcher)
 
 ### API Keys (set as environment variables)
 | Key | Required? | Purpose | Free Tier |
@@ -118,6 +118,7 @@ OpenClaw Gateway
 | `GH_TOKEN` | Recommended | GitHub API (5000 req/h vs 60/h unauthenticated) | GitHub personal access token (free) |
 | `TAVILY_API_KEY` | Optional | Tavily web search for breaking news | 1000 queries/month free |
 | `TWITTERAPI_IO_KEY` | Optional | twitterapi.io keyword search supplement | Paid (small monthly fee) |
+| `OPENROUTER_API_KEY` | Optional | OpenRouter — access to 200+ LLM models as Gemini fallback | Free credits on sign-up |
 
 ### Optional Tools
 - **bird** — Twitter/X CLI tool (for `scan_twitter_ai.sh`). Install: `npm install -g @steipete/bird` or `brew install steipete/tap/bird` — see [bird.fast](https://bird.fast). If not installed, the Twitter bird CLI source is skipped gracefully.
