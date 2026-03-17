@@ -1,7 +1,4 @@
 # OpenClaw Automated News Scanner
-
-<a href="https://t.me/genaispot"><img src="assets/gen-ai-spotlight-logo.jpg" width="120" align="left" style="margin-right: 16px;" /></a>
-
 <img width="1103" height="820" alt="image" src="https://github.com/user-attachments/assets/a39fe3a3-0468-4f67-ac08-0080b4ebbd4a" />
 
 ## How This Fits Into OpenClaw
