@@ -1,0 +1,1945 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw Newsroom 简报</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --brand: #2563eb;
+      --brand-soft: #dbeafe;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 22px; }
+    h1 { margin: 0; font-size: 30px; }
+    .sub { margin: 8px 0 16px; color: var(--muted); }
+
+    .tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+    .tab-btn { border: 1px solid var(--line); background: #fff; color: #1f2937; padding: 9px 12px; border-radius: 999px; font-size: 14px; cursor: pointer; }
+    .tab-btn .count { margin-left: 6px; color: var(--muted); }
+    .tab-btn.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+    .tab-btn.active .count { color: #e5edff; }
+
+    .panel { display: none; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; box-shadow: 0 2px 10px rgba(15,23,42,.04); }
+    .panel.active { display: block; }
+
+    .section-head h2 { margin: 0 0 8px; font-size: 22px; }
+    .section-summary { margin: 0 0 14px; color: #374151; line-height: 1.8; white-space: pre-line; }
+    .summary-card { border: 1px solid #dbeafe; background: linear-gradient(180deg,#f8fbff,#f3f8ff); border-radius: 12px; padding: 12px; margin-bottom: 14px; }
+    .summary-card .row { margin: 7px 0; }
+    .summary-card .label { display: inline-block; font-size: 12px; color: #1d4ed8; background: #dbeafe; border-radius: 999px; padding: 2px 8px; margin-bottom: 6px; }
+    .summary-card p { margin: 4px 0 0; line-height: 1.75; }
+    .summary-card ul { margin: 6px 0 0 18px; }
+    .keywords { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .keywords .k { font-size: 12px; padding: 3px 8px; border-radius: 999px; background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 12px; }
+    .card { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: #fff; transition: all .18s ease; }
+    .card:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(37,99,235,.08); border-color: #bfdbfe; }
+    .card-top { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .badge { background: #f3f4f6; color: #374151; border-radius: 999px; font-size: 12px; padding: 2px 8px; }
+    .badge.score { background: var(--brand-soft); color: #1e40af; }
+    .badge.cat { background: #ecfeff; color: #0e7490; }
+    .badge.ch { background: #ecfdf5; color: #065f46; }
+    .card h3 { margin: 0 0 4px; font-size: 16px; line-height: 1.45; }
+    .subtitle { margin: 0 0 8px; color: #6b7280; font-size: 13px; line-height: 1.4; font-style: italic; }
+    .summary { margin: 0 0 8px; color: #374151; line-height: 1.7; font-size: 14px; }
+    .meta { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+    .link { color: var(--brand); text-decoration: none; font-size: 14px; }
+    .empty { color: var(--muted); padding: 8px 2px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>OpenClaw Newsroom 简报</h1>
+    <div class="sub">生成时间：2026-03-17 14:18:38</div>
+
+    <div class="tabs" id="tabs">
+      <button class="tab-btn" data-target="panel-模型层面_Model" aria-selected="true">模型层面（Model） <span class="count">22</span></button><button class="tab-btn" data-target="panel-应用层面_Application" aria-selected="false">应用层面（Application） <span class="count">53</span></button><button class="tab-btn" data-target="panel-基建层面_Infrastructure" aria-selected="false">基建层面（Infrastructure） <span class="count">23</span></button><button class="tab-btn" data-target="panel-公司层面_Company_Industry" aria-selected="false">公司层面（Company/Industry） <span class="count">30</span></button>
+    </div>
+
+    <div id="panels">
+<section id="panel-模型层面_Model" class="panel active">
+  <div class="section-head">
+    <h2>模型层面（Model）</h2>
+    
+<div class="summary-card">
+  <div class="row"><span class="label">一句话总趋势</span><p>大模型进入“架构创新”与“旗舰对决”双爆发期，原生多模态向量化与非残差架构成为提升推理效率的新路径。</p></div>
+  <div class="row"><span class="label">关键词</span><div class="keywords"><span class="k">Mistral Small 4 (MoE) / Qwen 3.5 / Gemini Embedding 2</span><span class="k">非残差连接架构（Kimi） / NVFP4 量化 / 形式化数学证明（Lean 4）</span><span class="k">Agent 专用模型 / 多模态 RAG / 动态资源调度</span></div></div>
+  <div class="row"><span class="label">最大主题</span><p>高性能开源权重模型与架构范式创新（占本板块 50%）</p></div>
+  <div class="row"><span class="label">核心问题</span><p>如何在维持旗舰级推理与 Agent 能力的同时，通过架构优化和量化技术显著降低显存占用与推理延迟。</p></div>
+  <div class="row"><span class="label">典型方向</span><ul><li>专用化模型路径：针对数学证明（Leanstral）或 Agent 工作流（GLM-5 Turbo）进行特定任务优化。</li><li>架构底层重构：利用注意力机制取代传统残差连接，或采用细粒度 MoE 提升模型参数效率。</li><li>多模态统一检索：通过原生多模态向量模型（Gemini Embedding 2）实现文本、音视频在同一向量空间的无损映射。</li></ul></div>
+</div>
+
+  </div>
+  <div class="grid">
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#107</span>
+    <span class="badge score">Score 98</span>
+    <span class="badge cat">model_release</span>
+    <span class="badge ch">Tavily</span>
+  </div>
+  <h3>Anthropic与OpenAI同日对决：发布Opus 4.6与GPT-5.3</h3>
+  <div class="subtitle">Anthropic and OpenAI release dueling AI models on the same day in ...</div>
+  <p class="summary">两大AI巨头同日发布新旗舰模型，直接影响开发者对最强推理与代码能力的选型基准。</p>
+  <div class="meta">来源：Tavily/aol.com</div>
+  <a class="link" href="https://www.aol.com/articles/anthropic-openai-release-dueling-ai-032552149.html" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#108</span>
+    <span class="badge score">Score 95</span>
+    <span class="badge cat">model_release</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>谷歌发布 Gemini Embedding 2 原生多模态向量模型</h3>
+  <div class="subtitle">Gemini Embedding 2: Our first natively multimodal embedding model</div>
+  <p class="summary">首个原生支持文本、图像、音视频统一映射的向量模型，显著提升多模态 RAG 检索效率。</p>
+  <div class="meta">来源：Google AI Blog</div>
+  <a class="link" href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-embedding-2/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#109</span>
+    <span class="badge score">Score 95</span>
+    <span class="badge cat">model_release</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>Kimi架构创新：使用注意力机制彻底取代残差连接</h3>
+  <div class="subtitle">Attention is all you need: Kimi replaces residual connections with attention</div>
+  <p class="summary">月之暗面Kimi提出新型模型架构，挑战了维持十年的残差连接范式，可能显著改变模型训练效率。</p>
+  <div class="meta">来源：r/singularity</div>
+  <a class="link" href="https://www.reddit.com/r/singularity/comments/1rv4gao/attention_is_all_you_need_kimi_replaces_residual/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#110</span>
+    <span class="badge score">Score 95</span>
+    <span class="badge cat">model_release</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>Mistral发布首个数学证明助手专用代码Agent模型Leanstral</h3>
+  <div class="subtitle">mistralai/Leanstral-2603 · Hugging Face</div>
+  <p class="summary">Mistral推出针对Lean 4形式化数学证明优化的119B模型，展示了AI在复杂逻辑推理与软件规格验证领域的深度应用。</p>
+  <div class="meta">来源：r/LocalLLaMA</div>
+  <a class="link" href="https://huggingface.co/mistralai/Leanstral-2603" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#111</span>
+    <span class="badge score">Score 95</span>
+    <span class="badge cat">model_release</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>Mistral Small 4 发布：119B 参数的 SOTA 混合专家模型</h3>
+  <div class="subtitle">Mistral Small 4  - Mistral AI</div>
+  <p class="summary">Mistral 发布第四代 Small 模型，采用 MoE 架构并统一了指令遵循、推理与 Agent 能力，是目前顶级的开源权重模型。</p>
+  <div class="meta">来源：r/LocalLLaMA</div>
+  <a class="link" href="https://mistral.ai/news/mistral-small-4" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#112</span>
+    <span class="badge score">Score 95</span>
+    <span class="badge cat">model_release</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>Mistral 发布 Small 4 MoE 模型，融合推理与 Agent 能力</h3>
+  <div class="subtitle">Mistral Small 4:119B-2603</div>
+  <p class="summary">Mistral 更新其小型模型家族，采用细粒度混合专家架构（MoE），显著提升了指令遵循、逻辑推理及 Agent 协作技能。</p>
+  <div class="meta">来源：r/LocalLLaMA</div>
+  <a class="link" href="https://huggingface.co/mistralai/Mistral-Small-4-119B-2603" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#113</span>
+    <span class="badge score">Score 92</span>
+    <span class="badge cat">model_release</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>z.ai 发布 GLM-5 Turbo：更低成本的 Agent 专用模型</h3>
+  <div class="subtitle">z.ai debuts faster, cheaper GLM-5 Turbo model for agents and 'claws' — but it's not open-source</div>
+  <p class="summary">新模型显著降低了 Agent 调用的成本和延迟，直接影响开发者在复杂工作流中的模型选型。</p>
+  <div class="meta">来源：VentureBeat AI</div>
+  <a class="link" href="https://venturebeat.com/technology/z-ai-debuts-faster-cheaper-glm-5-turbo-model-for-agents-and-claws-but-its" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#114</span>
+    <span class="badge score">Score 92</span>
+    <span class="badge cat">open_source</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>英伟达发起Nemotron联盟，联合全球实验室推进开源模型</h3>
+  <div class="subtitle">NVIDIA Launches Nemotron Coalition of Leading Global AI Labs to Advance Open Frontier Models</div>
+  <p class="summary">英伟达联合全球顶尖实验室推动高性能开源模型，将显著降低开发者获取前沿模型能力的门槛。</p>
+  <div class="meta">来源：r/LocalLLaMA</div>
+  <a class="link" href="https://nvidianews.nvidia.com/news/nvidia-launches-nemotron-coalition-of-leading-global-ai-labs-to-advance-open-frontier-models" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#115</span>
+    <span class="badge score">Score 92</span>
+    <span class="badge cat">model_release</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>Mistral发布官方NVFP4量化版119B模型，优化推理效率</h3>
+  <div class="subtitle">Mistral releases an official NVFP4 model, Mistral-Small-4-119B-2603-NVFP4!</div>
+  <p class="summary">采用NVIDIA FP4精度量化的最新SOTA模型，在保持推理与Agent能力的同时显著降低了显存占用与计算成本。</p>
+  <div class="meta">来源：r/LocalLLaMA</div>
+  <a class="link" href="https://huggingface.co/mistralai/Mistral-Small-4-119B-2603-NVFP4" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#116</span>
+    <span class="badge score">Score 92</span>
+    <span class="badge cat">model_release</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>Kimi 创新架构：使用注意力机制取代十年未变的残差连接</h3>
+  <div class="subtitle">Residual connections haven't changed for 10 years and Kimi just replaced them with attention</div>
+  <p class="summary">月之暗面（Kimi）在模型架构上取得突破，通过注意力机制优化传统残差连接，可能彻底改变大模型的基础拓扑结构。</p>
+  <div class="meta">来源：r/LocalLLaMA</div>
+  <a class="link" href="https://www.reddit.com/r/LocalLLaMA/comments/1rv7ige/residual_connections_havent_changed_for_10_years/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#117</span>
+    <span class="badge score">Score 90</span>
+    <span class="badge cat">model_release</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>英伟达 2026 GTC 开幕：预告全新基础模型发布</h3>
+  <div class="subtitle">NVIDIA 2026 Conference LIVE. New Base model coming!</div>
+  <p class="summary">英伟达年度技术大会开幕，除了硬件更新外，官方预告将推出性能强劲的新一代基础大模型。</p>
+  <div class="meta">来源：r/LocalLLaMA</div>
+  <a class="link" href="https://www.reddit.com/r/LocalLLaMA/comments/1rvkxic/nvidia_2026_conference_live_new_base_model_coming/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#118</span>
+    <span class="badge score">Score 88</span>
+    <span class="badge cat">model_release</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>通义千问Qwen3.5-9B评测：文档处理能力超越部分闭源旗舰</h3>
+  <div class="subtitle">Qwen3.5-9B on document benchmarks: where it beats frontier models and where it doesn't.</div>
+  <p class="summary">Qwen3.5小参数模型在文档理解任务上表现惊人，为开发者提供了高性价比的本地化部署方案。</p>
+  <div class="meta">来源：r/LocalLLaMA</div>
+  <a class="link" href="https://www.reddit.com/r/LocalLLaMA/comments/1rv98wo/qwen359b_on_document_benchmarks_where_it_beats/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#119</span>
+    <span class="badge score">Score 82</span>
+    <span class="badge cat">model_release</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>大模型主题泛化基准V2发布，挑战隐藏规则推理能力</h3>
+  <div class="subtitle">LLM Thematic Generalization Benchmark V2: models see 3 examples, 3 misleading anti-examples, and 8 candidates with exactly 1 true match, but the underlying theme is never stated. The challenge is to infer the specific hidden rule from those clues rather than fall for a broader, easier pattern.</div>
+  <p class="summary">新版基准测试通过误导性示例考察模型是否能推断深层隐藏逻辑，而非仅仅依赖浅层模式匹配。</p>
+  <div class="meta">来源：r/singularity</div>
+  <a class="link" href="https://www.reddit.com/r/singularity/comments/1rvei1m/llm_thematic_generalization_benchmark_v2_models/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#120</span>
+    <span class="badge score">Score 80</span>
+    <span class="badge cat">github_trending</span>
+    <span class="badge ch">GitHub</span>
+  </div>
+  <h3>Claw-Eval：针对 LLM 智能体能力的自动化评估框架</h3>
+  <div class="subtitle">[GitHub EMERGING] claw-eval/claw-eval (+91 stars)</div>
+  <p class="summary">提供经过人工验证的任务集，用于量化评估模型作为 Agent 执行任务的真实能力。</p>
+  <div class="meta">来源：GitHub/Python</div>
+  <a class="link" href="https://github.com/claw-eval/claw-eval" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#121</span>
+    <span class="badge score">Score 78</span>
+    <span class="badge cat">model_release</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>Claude Opus 4.6 性能波动：非高峰期推理能力疑似缩水</h3>
+  <div class="subtitle">Opus 4.6 seems to have stopped real considerate thinking &quot;outside peak-hours&quot;</div>
+  <p class="summary">开发者社区反馈 Anthropic 旗舰模型在特定时段的思考深度下降，引发对 API 动态资源调度的关注。</p>
+  <div class="meta">来源：r/Anthropic</div>
+  <a class="link" href="https://www.reddit.com/r/Anthropic/comments/1rv8y62/opus_46_seems_to_have_stopped_real_considerate/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#122</span>
+    <span class="badge score">Score 78</span>
+    <span class="badge cat">model_release</span>
+    <span class="badge ch">GitHub</span>
+  </div>
+  <h3>LLM 架构画廊：主流大模型架构设计数据汇总</h3>
+  <div class="subtitle">[GitHub EMERGING] rasbt/llm-architecture-gallery (+595 stars)</div>
+  <p class="summary">系统性整理了各类 LLM 的架构参数与设计细节，是模型选型与研究的高价值参考资料。</p>
+  <div class="meta">来源：GitHub/Mixed</div>
+  <a class="link" href="https://github.com/rasbt/llm-architecture-gallery" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#123</span>
+    <span class="badge score">Score 75</span>
+    <span class="badge cat">model_release</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>GPT-4.5 通过“装傻”通过图灵测试，欺骗了 73% 的受试者</h3>
+  <div class="subtitle">GPT-4.5 fooled 73 percent of people into thinking it was human by pretending to be dumber</div>
+  <p class="summary">研究显示 GPT-4.5 在模拟人类行为方面的显著进步，对 AI 交互设计有启发。</p>
+  <div class="meta">来源：THE DECODER</div>
+  <a class="link" href="https://the-decoder.com/gpt-4-5-fooled-73-percent-of-people-into-thinking-it-was-human-by-pretending-to-be-dumber/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#124</span>
+    <span class="badge score">Score 75</span>
+    <span class="badge cat">other</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>物理 AI 成为制造业新优势：具身智能在生产线的落地</h3>
+  <div class="subtitle">Why physical AI is becoming manufacturing’s next advantage</div>
+  <p class="summary">探讨了 AI 如何从数字世界走向物理制造，为工业自动化提供了新的技术架构参考。</p>
+  <div class="meta">来源：MIT Tech Review</div>
+  <a class="link" href="https://www.technologyreview.com/2026/03/13/1134184/why-physical-ai-is-becoming-manufacturings-next-advantage/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#125</span>
+    <span class="badge score">Score 75</span>
+    <span class="badge cat">model_release</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>端侧模型横评：Qwen 3.5 在 4B 级别表现优于 Nemotron 3</h3>
+  <div class="subtitle">I was hyped for Nemotron 3 4B and it completely disappointed me compared to Qwen 3.5 4B</div>
+  <p class="summary">社区实测对比显示，阿里 Qwen 3.5 在小参数量级下的实用性超过了英伟达的新模型，为开发者选型提供参考。</p>
+  <div class="meta">来源：r/LocalLLaMA</div>
+  <a class="link" href="https://www.reddit.com/r/LocalLLaMA/comments/1rvw9j8/i_was_hyped_for_nemotron_3_4b_and_it_completely/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#126</span>
+    <span class="badge score">Score 72</span>
+    <span class="badge cat">geopolitics</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>AI 生成战争影像泛滥，真实卫星图像获取难度增加</h3>
+  <div class="subtitle">AI-generated war footage is going viral while real satellite imagery disappears from public view</div>
+  <p class="summary">AI 生成内容在冲突中引发信息混乱，凸显了多模态内容鉴别与真实数据源保护的重要性。</p>
+  <div class="meta">来源：THE DECODER</div>
+  <a class="link" href="https://the-decoder.com/ai-generated-war-footage-is-going-viral-while-real-satellite-imagery-disappears-from-public-view/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#127</span>
+    <span class="badge score">Score 65</span>
+    <span class="badge cat">security</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>Google 发布青少年生成式 AI 安全路线图</h3>
+  <div class="subtitle">A roadmap for safer generative AI for young people</div>
+  <p class="summary">提出了针对年轻用户的 AI 交互安全标准，涉及提示词过滤、沙箱隔离与合规性实战。</p>
+  <div class="meta">来源：Google AI Blog</div>
+  <a class="link" href="https://blog.google/innovation-and-ai/technology/families/growing-up-digital-age-gemini-youth/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#128</span>
+    <span class="badge score">Score 65</span>
+    <span class="badge cat">other</span>
+    <span class="badge ch">Tavily</span>
+  </div>
+  <h3>深度解析：ChatGPT 内部工作原理与大模型机制</h3>
+  <div class="subtitle">Artificial intelligence - NBC News</div>
+  <p class="summary">科普类深度报道，解释了 LLM 如何通过复杂方程理解并响应指令，适合作为技术选型的背景理解。</p>
+  <div class="meta">来源：Tavily/nbcnews.com</div>
+  <a class="link" href="https://www.nbcnews.com/artificial-intelligence" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+</div>
+</section>
+
+<section id="panel-应用层面_Application" class="panel">
+  <div class="section-head">
+    <h2>应用层面（Application）</h2>
+    
+<div class="summary-card">
+  <div class="row"><span class="label">一句话总趋势</span><p>AI 应用正从单一对话接口向具备自主决策、长效记忆及物理世界感知能力的深度垂直 Agent 架构演进。</p></div>
+  <div class="row"><span class="label">关键词</span><div class="keywords"><span class="k">Claude Code / OpenClaw / Agentic AI</span><span class="k">自进化研究助手 / 形式化数学证明 / 生成式 UI</span><span class="k">金融预测 / 医疗合规 / 游戏实时渲染（DLSS 5）</span></div></div>
+  <div class="row"><span class="label">最大主题</span><p>自主编程与科研 Agent 生态（占本板块约 40%）</p></div>
+  <div class="row"><span class="label">核心问题</span><p>如何构建具备持久化记忆、低幻觉且能处理复杂工程/科研逻辑的闭环自动化工作流。</p></div>
+  <div class="row"><span class="label">典型方向</span><ul><li>编程工具原生化集成：如 Claude Code 实现“修改-验证-循环”的自动化工程闭环。</li><li>垂直领域专用智能体：如 Mistral 的数学证明智能体与 ScienceClaw 科学研究助手，填补高门槛行业空白。</li><li>架构简化与性能替代：如 LinkedIn 用单个 LLM 替换五个传统检索系统，展示在大规模生产环境下的架构重构价值。</li></ul></div>
+</div>
+
+  </div>
+  <div class="grid">
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#54</span>
+    <span class="badge score">Score 95</span>
+    <span class="badge cat">open_source</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>Mistral发布Leanstral：首个Lean 4数学证明开源AI智能体</h3>
+  <div class="subtitle">Leanstral: Open-Source foundation for trustworthy vibe-coding</div>
+  <p class="summary">Mistral推出的开源代码智能体，专注于高难度数学证明与形式化验证，填补了可靠代码生成的生态空白。</p>
+  <div class="meta">来源：r/LocalLLaMA</div>
+  <a class="link" href="https://mistral.ai/news/leanstral" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#55</span>
+    <span class="badge score">Score 95</span>
+    <span class="badge cat">github_trending</span>
+    <span class="badge ch">GitHub</span>
+  </div>
+  <h3>Claude Autoresearch：受 Karpathy 启发的自主迭代研究工具</h3>
+  <div class="subtitle">[GitHub EMERGING] uditgoenka/autoresearch (+875 stars)</div>
+  <p class="summary">为 Claude Code 引入自主目标导向的迭代能力，实现“修改-验证-循环”的自动化研究流程。</p>
+  <div class="meta">来源：GitHub/Mixed</div>
+  <a class="link" href="https://github.com/uditgoenka/autoresearch" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#56</span>
+    <span class="badge score">Score 92</span>
+    <span class="badge cat">gaming</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>英伟达发布 DLSS 5，AI 驱动游戏画质实现跨越式突破</h3>
+  <div class="subtitle">NVIDIA DLSS 5 Delivers AI-Powered Breakthrough in Visual Fidelity for Games</div>
+  <p class="summary">DLSS 5 引入了更先进的 AI 模型，显著提升了游戏渲染的视觉保真度与帧率，展示了 AI 在图形学领域的最新工程实践。</p>
+  <div class="meta">来源：r/singularity</div>
+  <a class="link" href="https://nvidianews.nvidia.com/news/nvidia-dlss-5-delivers-ai-powered-breakthrough-in-visual-fidelity-for-games" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#57</span>
+    <span class="badge score">Score 92</span>
+    <span class="badge cat">github_trending</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>开发者开源自制 Claude Code UI：提升日常开发交互体验</h3>
+  <div class="subtitle">I built the Claude Code UI I always wanted for daily use and made it Open Source</div>
+  <p class="summary">针对 Claude Code 命令行工具开发的开源图形界面，显著降低了 AI 辅助编程工具的使用门槛。</p>
+  <div class="meta">来源：r/Anthropic</div>
+  <a class="link" href="https://www.reddit.com/r/Anthropic/comments/1rvfxwn/i_built_the_claude_code_ui_i_always_wanted_for/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#58</span>
+    <span class="badge score">Score 92</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>Claude Code 全面开放：Anthropic 重新定义 AI 编程助手</h3>
+  <div class="subtitle">Claude Code for everybody</div>
+  <p class="summary">Anthropic 推出的原生编程工具 Claude Code 降低了接入门槛，展示了 AI 在代码生成与工程自动化方面的深度集成。</p>
+  <div class="meta">来源：Bens Bites</div>
+  <a class="link" href="https://www.bensbites.com/p/claude-code-for-everybody" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#59</span>
+    <span class="badge score">Score 92</span>
+    <span class="badge cat">github_trending</span>
+    <span class="badge ch">GitHub</span>
+  </div>
+  <h3>ScienceClaw：具备 285 项技能的自进化 AI 科学研究助手</h3>
+  <div class="subtitle">[GitHub EMERGING] beita6969/ScienceClaw (+189 stars)</div>
+  <p class="summary">专为科学家设计的 AI 同事，支持持久化记忆与零幻觉特性，填补了垂直科研领域的 Agent 空白。</p>
+  <div class="meta">来源：GitHub/TypeScript</div>
+  <a class="link" href="https://github.com/beita6969/ScienceClaw" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#60</span>
+    <span class="badge score">Score 90</span>
+    <span class="badge cat">open_source</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>英伟达发布企业级 Agent 平台，联合 17 家巨头构建生态</h3>
+  <div class="subtitle">Nvidia launches enterprise AI agent platform with Adobe, Salesforce, SAP among 17 adopters at GTC 2026</div>
+  <p class="summary">Nvidia 联合主流 SaaS 厂商推出 Agent 平台，将改变企业级 AI 应用的开发与集成范式。</p>
+  <div class="meta">来源：VentureBeat AI</div>
+  <a class="link" href="https://venturebeat.com/technology/nvidia-launches-enterprise-ai-agent-platform-with-adobe-salesforce-sap-among" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#61</span>
+    <span class="badge score">Score 90</span>
+    <span class="badge cat">gaming</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>英伟达发布 DLSS 5：利用生成式 AI 实现游戏画质跨越式提升</h3>
+  <div class="subtitle">Nvidia’s DLSS 5 uses generative AI to boost photorealism in video games, with ambitions beyond gaming</div>
+  <p class="summary">DLSS 5 标志着生成式 AI 进入实时渲染领域，不仅改变游戏体验，更将扩展至专业视觉创作。</p>
+  <div class="meta">来源：TechCrunch AI</div>
+  <a class="link" href="https://techcrunch.com/2026/03/16/nvidias-dlss-5-uses-generative-ai-to-boost-photo-realism-in-video-games-with-ambitions-beyond-gaming/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#62</span>
+    <span class="badge score">Score 88</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>LinkedIn 架构演进：用单个 LLM 替换五个传统检索系统</h3>
+  <div class="subtitle">How LinkedIn replaced five feed retrieval systems with one LLM model, at 1.3 billion-user scale</div>
+  <p class="summary">展示了在大规模生产环境下使用 LLM 简化系统架构的可复用工程案例，极具参考价值。</p>
+  <div class="meta">来源：VentureBeat AI</div>
+  <a class="link" href="https://venturebeat.com/orchestration/how-linkedin-replaced-five-feed-retrieval-systems-with-one-llm-model-at-1-3" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#63</span>
+    <span class="badge score">Score 88</span>
+    <span class="badge cat">gaming</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>英伟达 DLSS 5 曝光：实时生成式 AI 滤镜重塑游戏图形</h3>
+  <div class="subtitle">DLSS 5 looks like a real-time generative AI filter for video games</div>
+  <p class="summary">利用生成式 AI 实时改变游戏光影与材质，展示了 AI 在图形渲染领域的范式转移。</p>
+  <div class="meta">来源：The Verge</div>
+  <a class="link" href="https://www.theverge.com/news/895472/nvidia-dlss5-generative-ai-pc-graphics" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#64</span>
+    <span class="badge score">Score 88</span>
+    <span class="badge cat">security</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>安全警示：OpenClaw 框架可绕过主流企业级安全防御系统</h3>
+  <div class="subtitle">OpenClaw can bypass your EDR, DLP and IAM without triggering a single alert</div>
+  <p class="summary">揭示了 AI 驱动的攻击工具如何静默绕过传统安全审计，对企业 AI 安全合规具有极高参考价值。</p>
+  <div class="meta">来源：VentureBeat AI</div>
+  <a class="link" href="https://venturebeat.com/security/openclaw-can-bypass-your-edr-dlp-and-iam-without-triggering-a-single-alert" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#65</span>
+    <span class="badge score">Score 88</span>
+    <span class="badge cat">open_source</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>长效运行 Agent：实现个性化与实用技能的持续进化</h3>
+  <div class="subtitle">Agents that keep running</div>
+  <p class="summary">探讨了具备持久化能力和自主决策系统的 Agent 架构，这是提升 AI 交付效率和工作流自动化的关键方向。</p>
+  <div class="meta">来源：Bens Bites</div>
+  <a class="link" href="https://www.bensbites.com/p/agents-that-keep-running" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#66</span>
+    <span class="badge score">Score 88</span>
+    <span class="badge cat">fintech</span>
+    <span class="badge ch">GitHub</span>
+  </div>
+  <h3>Trump-Code：利用 AI 解码社交动态预测美股走势</h3>
+  <div class="subtitle">[GitHub EMERGING] sstklen/trump-code (+410 stars)</div>
+  <p class="summary">展示了 AI 在金融预测领域的创新应用，通过解码特定政治人物动态实现 61.3% 的命中率。</p>
+  <div class="meta">来源：GitHub/Python</div>
+  <a class="link" href="https://github.com/sstklen/trump-code" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#67</span>
+    <span class="badge score">Score 88</span>
+    <span class="badge cat">open_source</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>非技术人员编程指南：如何利用 Coding Agent 构建应用</h3>
+  <div class="subtitle">Using coding agents, if you're not technical</div>
+  <p class="summary">针对非开发者提供的深度指南，展示了如何通过 Agent 框架管理代码库并实现从想法到产品的快速交付。</p>
+  <div class="meta">来源：Bens Bites</div>
+  <a class="link" href="https://www.bensbites.com/p/using-coding-agents-if-youre-not" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#68</span>
+    <span class="badge score">Score 87</span>
+    <span class="badge cat">github_trending</span>
+    <span class="badge ch">GitHub</span>
+  </div>
+  <h3>OpenGenerativeUI：开源生成式 UI 交互框架</h3>
+  <div class="subtitle">[GitHub EMERGING] CopilotKit/OpenGenerativeUI (+552 stars)</div>
+  <p class="summary">提供了一套构建生成式用户界面的标准框架，降低了开发者集成 AI 交互界面的门槛。</p>
+  <div class="meta">来源：GitHub/TypeScript</div>
+  <a class="link" href="https://github.com/CopilotKit/OpenGenerativeUI" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#69</span>
+    <span class="badge score">Score 85</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>谷歌 Workspace 全线集成 Gemini 新功能提升协作效率</h3>
+  <div class="subtitle">New ways to create faster with Gemini in Docs, Sheets, Slides and Drive</div>
+  <p class="summary">Gemini 深度集成至文档、表格及云端硬盘，通过自动化工作流降低办公门槛。</p>
+  <div class="meta">来源：Google AI Blog</div>
+  <a class="link" href="https://blog.google/products-and-platforms/products/workspace/gemini-workspace-updates-march-2026/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#70</span>
+    <span class="badge score">Score 85</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>Shopify 布局 AI 购物智能体：重塑电商交互与工作流</h3>
+  <div class="subtitle">Shopify is preparing for AI shopping agents to change everything, exec says</div>
+  <p class="summary">电商巨头 Shopify 确认将全面集成 AI Agent，展示了 AI 在垂直商业场景的落地路径。</p>
+  <div class="meta">来源：TechCrunch AI</div>
+  <a class="link" href="https://techcrunch.com/2026/03/16/shopify-is-preparing-for-ai-shopping-agents-to-change-everything-exec-says/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#71</span>
+    <span class="badge score">Score 85</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>超越初级阶段：Agentic AI 迈向成熟工作流的关键路径</h3>
+  <div class="subtitle">Nurturing agentic AI beyond the toddler stage</div>
+  <p class="summary">探讨智能体从简单对话向复杂自主决策演进的技术架构，对构建生产级Agent具有指导意义。</p>
+  <div class="meta">来源：MIT Tech Review</div>
+  <a class="link" href="https://www.technologyreview.com/2026/03/16/1133979/nurturing-agentic-ai-beyond-the-toddler-stage/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#72</span>
+    <span class="badge score">Score 85</span>
+    <span class="badge cat">github_trending</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>编程Agent的未来：新UI、自主世界与代码生成演进</h3>
+  <div class="subtitle">What's next for coding agents?</div>
+  <p class="summary">探讨编程智能体从简单的代码补全向具备自主决策、复杂UI交互及环境感知能力的系统演进趋势。</p>
+  <div class="meta">来源：Bens Bites</div>
+  <a class="link" href="https://www.bensbites.com/p/whats-next-for-coding-agents" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#73</span>
+    <span class="badge score">Score 85</span>
+    <span class="badge cat">open_source</span>
+    <span class="badge ch">GitHub</span>
+  </div>
+  <h3>AI-Search-Hub：聚合主流平台原生 AI 搜索能力的工具</h3>
+  <div class="subtitle">[GitHub EMERGING] minsight-ai-info/AI-Search-Hub (+73 stars)</div>
+  <p class="summary">一键聚合 Gemini、Grok 等搜索能力，方便开发者将实时搜索结果集成至 Agent 工作流。</p>
+  <div class="meta">来源：GitHub/Python</div>
+  <a class="link" href="https://github.com/minsight-ai-info/AI-Search-Hub" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#74</span>
+    <span class="badge score">Score 85</span>
+    <span class="badge cat">github_trending</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>多媒体内容检索工具：支持沙盒环境与 Agent 集成</h3>
+  <div class="subtitle">Make any media searchable</div>
+  <p class="summary">介绍了一套新型工具链，通过 CLI 和沙盒环境让任何媒体内容可被 Agent 检索和处理，提升了 RAG 的应用边界。</p>
+  <div class="meta">来源：Bens Bites</div>
+  <a class="link" href="https://www.bensbites.com/p/make-any-media-searchable" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#75</span>
+    <span class="badge score">Score 84</span>
+    <span class="badge cat">open_source</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>中国 OpenClaw 框架引发开发者热潮，早期采用者获利显著</h3>
+  <div class="subtitle">The Download: Early adopters cash in on China’s OpenClaw craze, and US batteries slump</div>
+  <p class="summary">OpenClaw 框架在开发者生态中快速渗透，展示了新型 AI 架构在实际工程落地中的巨大商业价值。</p>
+  <div class="meta">来源：MIT Tech Review</div>
+  <a class="link" href="https://www.technologyreview.com/2026/03/12/1134207/the-download-china-openclaw-ai-craze-us-battery-industry-downturn/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#76</span>
+    <span class="badge score">Score 84</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>Gemini 在 Google Sheets 任务中达到 SOTA 性能</h3>
+  <div class="subtitle">Gemini in Google Sheets just achieved state-of-the-art performance.</div>
+  <p class="summary">Gemini 在表格处理与数据分析任务上的性能突破，提升了 AI 在生产力工具中的实用性。</p>
+  <div class="meta">来源：Google AI Blog</div>
+  <a class="link" href="https://blog.google/products-and-platforms/products/workspace/gemini-google-sheets-state-of-the-art/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#77</span>
+    <span class="badge score">Score 84</span>
+    <span class="badge cat">github_trending</span>
+    <span class="badge ch">GitHub</span>
+  </div>
+  <h3>MiroFish-Offline：基于本地栈的多智能体模拟预测引擎</h3>
+  <div class="subtitle">[GitHub EMERGING] nikmcfly/MiroFish-Offline (+346 stars)</div>
+  <p class="summary">采用 Neo4j 与 Ollama 的本地化组合，实现了隐私安全的离线多 Agent 协作与预测。</p>
+  <div class="meta">来源：GitHub/Python</div>
+  <a class="link" href="https://github.com/nikmcfly/MiroFish-Offline" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#78</span>
+    <span class="badge score">Score 83</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>技能化趋势：OpenAI 镇厅会议揭秘模型如何掌握复杂技能</h3>
+  <div class="subtitle">Skills are taking over</div>
+  <p class="summary">OpenAI 强调模型正从通用对话转向特定技能掌握，预示着 AI 应用将进入深度垂直化阶段。</p>
+  <div class="meta">来源：Bens Bites</div>
+  <a class="link" href="https://www.bensbites.com/p/skills-are-taking-over" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#79</span>
+    <span class="badge score">Score 82</span>
+    <span class="badge cat">gaming</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>索尼 PS5 Pro PSSR AI 超分技术迎来重大更新</h3>
+  <div class="subtitle">Sony&amp;#8217;s AI graphics upscaling for PS5 Pro games is getting a big update tonight</div>
+  <p class="summary">PSSR 技术更新将覆盖《赛博朋克 2077》等大作，展示了 AI 在消费级硬件性能优化的落地。</p>
+  <div class="meta">来源：The Verge</div>
+  <a class="link" href="https://www.theverge.com/games/895396/playstation-pssr-upscaling-cyberpunk-2077-silent-hill" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#80</span>
+    <span class="badge score">Score 82</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>务实设计：面向真实世界的 AI 工程化架构指南</h3>
+  <div class="subtitle">Pragmatic by design: Engineering AI for the real world</div>
+  <p class="summary">探讨如何将 AI 模型集成到汽车、家电等物理设备中，提供了可复用的工程架构与性能优化思路。</p>
+  <div class="meta">来源：MIT Tech Review</div>
+  <a class="link" href="https://www.technologyreview.com/2026/03/12/1133675/pragmatic-by-design-engineering-ai-for-the-real-world/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#81</span>
+    <span class="badge score">Score 80</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>Picsart 推出 Agent 商店，创作者可“雇佣”AI 助手</h3>
+  <div class="subtitle">Picsart now allows creators to ‘hire’ AI assistants through agent marketplace</div>
+  <p class="summary">展示了 AI Agent 在创意设计领域的商业化落地模式，具有垂直场景参考意义。</p>
+  <div class="meta">来源：TechCrunch AI</div>
+  <a class="link" href="https://techcrunch.com/2026/03/16/picsart-now-allows-creators-to-hire-ai-assistants-through-agent-marketplace/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#82</span>
+    <span class="badge score">Score 80</span>
+    <span class="badge cat">other</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>提示词工程突破：让 ChatGPT 实现高度拟人化写作的方案</h3>
+  <div class="subtitle">I finally found a prompt that makes ChatGPT write like human (free)</div>
+  <p class="summary">社区分享的高质量提示词方案，有效解决了 AI 文本机械感痛点，具有极高的实操复用价值。</p>
+  <div class="meta">来源：r/ChatGPT</div>
+  <a class="link" href="https://www.reddit.com/r/ChatGPT/comments/1rvhcm0/i_finally_found_a_prompt_that_makes_chatgpt_write/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#83</span>
+    <span class="badge score">Score 80</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">Tavily</span>
+  </div>
+  <h3>Anthropic发布医疗专用Claude工具，进军医疗AI市场</h3>
+  <div class="subtitle">Anthropic joins OpenAI's push into health care with new Claude tools</div>
+  <p class="summary">Anthropic推出允许处理医疗数据的新功能，直接与OpenAI在高度合规的医疗垂直领域展开竞争。</p>
+  <div class="meta">来源：Tavily/nbcnews.com</div>
+  <a class="link" href="https://www.nbcnews.com/tech/tech-news/anthropic-health-care-rcna252872" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#84</span>
+    <span class="badge score">Score 80</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>OpenAI 推出 Prism：专为科研设计的 LaTeX 编辑器</h3>
+  <div class="subtitle">Writing research made easy</div>
+  <p class="summary">OpenAI 针对科研场景推出的工具，展示了 AI 在垂直专业领域（如学术写作与公式编辑）的深度应用。</p>
+  <div class="meta">来源：Bens Bites</div>
+  <a class="link" href="https://www.bensbites.com/p/writing-research-made-easy" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#85</span>
+    <span class="badge score">Score 78</span>
+    <span class="badge cat">other</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>Anthropic 推出 Claude 认证架构师考试，标准化 AI 开发技能</h3>
+  <div class="subtitle">Anthropic - Claude certified architect foundation exam</div>
+  <p class="summary">官方认证体系的建立标志着 AI 架构开发进入专业化阶段，影响开发者的职业技能路径。</p>
+  <div class="meta">来源：r/Anthropic</div>
+  <a class="link" href="https://www.reddit.com/r/Anthropic/comments/1rv2geg/anthropic_claude_certified_architect_foundation/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#86</span>
+    <span class="badge score">Score 78</span>
+    <span class="badge cat">security</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>防御 AI 驱动的欺诈：数字资产安全架构的演进</h3>
+  <div class="subtitle">Securing digital assets against future threats</div>
+  <p class="summary">针对 AI 增强型诈骗和量子计算威胁，提出了新的数字资产保护方案与审计链路设计。</p>
+  <div class="meta">来源：MIT Tech Review</div>
+  <a class="link" href="https://www.technologyreview.com/2026/03/16/1134287/securing-digital-assets-against-future-threats/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#87</span>
+    <span class="badge score">Score 75</span>
+    <span class="badge cat">fintech</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>华尔街开始利用预测市场进行电子交易决策</h3>
+  <div class="subtitle">Wall Street Is Already Betting on Prediction Markets</div>
+  <p class="summary">展示了 AI 与预测市场结合在金融决策中的应用，为量化交易提供新维度。</p>
+  <div class="meta">来源：Wired AI</div>
+  <a class="link" href="https://www.wired.com/story/prediction-markets-find-a-welcome-on-wall-street/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#88</span>
+    <span class="badge score">Score 75</span>
+    <span class="badge cat">open_source</span>
+    <span class="badge ch">GitHub</span>
+  </div>
+  <h3>OpenClaw 中文指南：全方位开源 AI 助手部署文档</h3>
+  <div class="subtitle">[GitHub EMERGING] liyupi/openclaw-guide (+98 stars)</div>
+  <p class="summary">覆盖 20+ 平台与 30+ 模型提供商的详细中文文档，极大降低了中文开发者上手 AI 助手的门槛。</p>
+  <div class="meta">来源：GitHub/HTML</div>
+  <a class="link" href="https://github.com/liyupi/openclaw-guide" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#89</span>
+    <span class="badge score">Score 72</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>Google 发布 Groundsource：利用 Gemini 预测自然灾害</h3>
+  <div class="subtitle">Groundsource: using AI to help communities better predict natural disasters</div>
+  <p class="summary">展示了 LLM 在处理海量公共报告并转化为高质量危机预测数据方面的社会应用价值。</p>
+  <div class="meta">来源：Google AI Blog</div>
+  <a class="link" href="https://blog.google/innovation-and-ai/technology/research/gemini-help-communities-predict-crisis/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#90</span>
+    <span class="badge score">Score 72</span>
+    <span class="badge cat">security</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>美军方披露：AI 聊天机器人正被探索用于军事目标决策</h3>
+  <div class="subtitle">A defense official reveals how AI chatbots could be used for targeting decisions</div>
+  <p class="summary">展示了生成式 AI 在极端严肃场景下的应用探索，涉及 AI 安全与伦理的重大议题。</p>
+  <div class="meta">来源：MIT Tech Review</div>
+  <a class="link" href="https://www.technologyreview.com/2026/03/12/1134243/defense-official-military-use-ai-chatbots-targeting-decisions/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#91</span>
+    <span class="badge score">Score 72</span>
+    <span class="badge cat">other</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>科学研究证实：AI 协作能显著提升人类创造力</h3>
+  <div class="subtitle">Scientists discover AI can make humans more creative</div>
+  <p class="summary">斯旺西大学的研究表明，AI 不仅是替代工具，更能作为创意伙伴激发人类产生更具新意的想法。</p>
+  <div class="meta">来源：r/singularity</div>
+  <a class="link" href="https://www.sciencedaily.com/releases/2026/03/260315004355.htm" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#92</span>
+    <span class="badge score">Score 70</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>Google Earth AI 结合地理空间模型，助力全球公共卫生预测</h3>
+  <div class="subtitle">How Google Earth AI’s planetary intelligence is supporting global public health</div>
+  <p class="summary">通过将本地健康数据与高级地理空间模型结合，AI 正在帮助预测疾病爆发并识别脆弱地区。</p>
+  <div class="meta">来源：Google AI Blog</div>
+  <a class="link" href="https://blog.google/innovation-and-ai/technology/health/google-earth-ai-global-public-health/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#93</span>
+    <span class="badge score">Score 70</span>
+    <span class="badge cat">other</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>谷歌 AI 研究提升英国乳腺癌检测准确率 25%</h3>
+  <div class="subtitle">How AI can improve breast cancer detection in the UK</div>
+  <p class="summary">展示了 AI 在医疗垂直场景的真实工程价值，具有可复现的架构参考意义。</p>
+  <div class="meta">来源：Google AI Blog</div>
+  <a class="link" href="https://blog.google/innovation-and-ai/technology/health/google-ai-breast-cancer-detection/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#94</span>
+    <span class="badge score">Score 70</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>谷歌地图集成 Gemini：实现对话式搜索与沉浸式导航</h3>
+  <div class="subtitle">How we’re reimagining Maps with Gemini</div>
+  <p class="summary">Gemini 赋能主流地图应用，展示了多模态模型在地理空间信息处理中的实际价值。</p>
+  <div class="meta">来源：Google AI Blog</div>
+  <a class="link" href="https://blog.google/products-and-platforms/products/maps/ask-maps-immersive-navigation/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#95</span>
+    <span class="badge score">Score 70</span>
+    <span class="badge cat">github_trending</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>开发者实战日志：本周AI Agent构建栈与工具心得</h3>
+  <div class="subtitle">How (and what) I'm building this week</div>
+  <p class="summary">分享了实际构建AI应用时的技术选型、Prompt策略及避坑指南，具有较高的工程参考价值。</p>
+  <div class="meta">来源：Bens Bites</div>
+  <a class="link" href="https://www.bensbites.com/p/how-and-what-im-building-this-week" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#96</span>
+    <span class="badge score">Score 70</span>
+    <span class="badge cat">other</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>从 Vibe Coding 到工程化：AI 开发模式的快速演变</h3>
+  <div class="subtitle">Vibe coding is old now</div>
+  <p class="summary">Karpathy 等专家讨论 AI 编程从“凭感觉”向更严谨的工程化架构转变的趋势。</p>
+  <div class="meta">来源：Bens Bites</div>
+  <a class="link" href="https://www.bensbites.com/p/vibe-coding-is-old-now" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#97</span>
+    <span class="badge score">Score 70</span>
+    <span class="badge cat">github_trending</span>
+    <span class="badge ch">GitHub</span>
+  </div>
+  <h3>Openleaf：为 Overleaf 打造的 AI 论文引用与综述插件</h3>
+  <div class="subtitle">[GitHub EMERGING] Demfier/openleaf (+92 stars)</div>
+  <p class="summary">通过 Chrome 扩展为学术写作平台提供 AI 驱动的文献搜索与综述功能，提升科研效率。</p>
+  <div class="meta">来源：GitHub/TypeScript</div>
+  <a class="link" href="https://github.com/Demfier/openleaf" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#98</span>
+    <span class="badge score">Score 70</span>
+    <span class="badge cat">open_source</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>终端里的 Google 应用：通过 CLI 实现工作流自动化</h3>
+  <div class="subtitle">Google apps in the terminal</div>
+  <p class="summary">介绍如何通过命令行界面集成 Google 生态应用，为开发者提供更高效的自动化脚本编写方案。</p>
+  <div class="meta">来源：Bens Bites</div>
+  <a class="link" href="https://www.bensbites.com/p/google-apps-in-the-terminal" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#99</span>
+    <span class="badge score">Score 68</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>Claude 生态冲突：Notion 与 Perplexity 的 Agent 竞争</h3>
+  <div class="subtitle">Claude has some conflicts</div>
+  <p class="summary">分析主流 AI 应用在集成“计算机使用”功能时的竞争态势，涉及 Notion 与 Perplexity 的产品重叠。</p>
+  <div class="meta">来源：Bens Bites</div>
+  <a class="link" href="https://www.bensbites.com/p/claude-has-some-conflicts" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#100</span>
+    <span class="badge score">Score 65</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>Gemini 接入马来西亚所有公立大学教育体系</h3>
+  <div class="subtitle">Enabling Gemini for Education across all Malaysian public universities</div>
+  <p class="summary">AI 在教育领域的规模化落地案例，影响 60 万学生及 7.5 万教职员工。</p>
+  <div class="meta">来源：Google AI Blog</div>
+  <a class="link" href="https://blog.google/company-news/inside-google/around-the-globe/google-asia/gemini-malaysia-universities/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#101</span>
+    <span class="badge score">Score 62</span>
+    <span class="badge cat">fintech</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>Fuse 融资 2500 万美元：利用 AI 改造传统贷款系统</h3>
+  <div class="subtitle">Fuse raises $25M  to disrupt aging loan origination systems used by US credit unions</div>
+  <p class="summary">AI 在金融信贷领域的垂直应用，旨在通过自动化流程提升信用社的运营效率。</p>
+  <div class="meta">来源：TechCrunch AI</div>
+  <a class="link" href="https://techcrunch.com/2026/03/16/fuse-raises-25m-to-disrupt-aging-loan-origination-systems-used-by-u-s-credit-unions/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#102</span>
+    <span class="badge score">Score 62</span>
+    <span class="badge cat">open_source</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>新型开源文本转音频采样生成器正式发布</h3>
+  <div class="subtitle">So I was the guy from last week working on that SOTA Text-To-Sample Generator. Just got it out today :)</div>
+  <p class="summary">社区开发者发布的SOTA级别音频生成工具，展示了多模态生成在垂直创作领域的潜力。</p>
+  <div class="meta">来源：r/LocalLLaMA</div>
+  <a class="link" href="https://www.reddit.com/r/LocalLLaMA/comments/1rvnflv/so_i_was_the_guy_from_last_week_working_on_that/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#103</span>
+    <span class="badge score">Score 62</span>
+    <span class="badge cat">security</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>真人模特申请成为 AI 诈骗“面孔”，深伪技术滥用加剧</h3>
+  <div class="subtitle">Models Are Applying to Be the Face of AI Scams</div>
+  <p class="summary">揭示了 AI 诈骗产业链的新动向，模特主动参与生成用于诈骗的数字分身，引发伦理与监管讨论。</p>
+  <div class="meta">来源：Wired AI</div>
+  <a class="link" href="https://www.wired.com/story/models-are-applying-to-be-the-face-of-ai-scams/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#104</span>
+    <span class="badge score">Score 60</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>跨模型协作：顾问利用 AI 工具为宠物狗寻找癌症疗法</h3>
+  <div class="subtitle">AI consultant uses ChatGPT, AlphaFold, and Grok to find a possible treatment for his dog's cancer</div>
+  <p class="summary">展示了多模型组合在解决复杂医疗问题中的潜力，属于创新应用探索。</p>
+  <div class="meta">来源：THE DECODER</div>
+  <a class="link" href="https://the-decoder.com/ai-consultant-uses-chatgpt-alphafold-and-grok-to-find-a-possible-treatment-for-his-dogs-cancer/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#105</span>
+    <span class="badge score">Score 60</span>
+    <span class="badge cat">other</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>迪士尼展示雪宝机器人：AI 驱动的交互式娱乐未来</h3>
+  <div class="subtitle">I met Olaf — the Frozen robot who might be the future of Disney Parks</div>
+  <p class="summary">展示了 AI 与具身智能在娱乐场景的结合，探索新型交互体验。</p>
+  <div class="meta">来源：The Verge</div>
+  <a class="link" href="https://www.theverge.com/tech/895369/olaf-disney-imagineering-frozen-robot-up-close" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#106</span>
+    <span class="badge score">Score 60</span>
+    <span class="badge cat">other</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>开发者吐槽：Gemini 在复杂编程任务中表现乏力</h3>
+  <div class="subtitle">There is no hope for Gemini in coding department</div>
+  <p class="summary">社区用户分享了 Gemini 在处理大型代码库时的局限性，对比 Claude 和 GPT-4 仍有差距。</p>
+  <div class="meta">来源：r/GeminiAI</div>
+  <a class="link" href="https://www.reddit.com/r/GeminiAI/comments/1rvbuew/there_is_no_hope_for_gemini_in_coding_department/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+</div>
+</section>
+
+<section id="panel-基建层面_Infrastructure" class="panel">
+  <div class="section-head">
+    <h2>基建层面（Infrastructure）</h2>
+    
+<div class="summary-card">
+  <div class="row"><span class="label">一句话总趋势</span><p>英伟达通过 Rubin 平台与上下文存储技术强化 Agent 算力基建，同时开发者侧正通过缓存技术与量化方案极速降低推理成本。</p></div>
+  <div class="row"><span class="label">关键词</span><div class="keywords"><span class="k">英伟达 Rubin 平台/BlueField-4 STX/DGX Station</span><span class="k">Claude Code 自动提示词缓存/Gemini API 支出上限</span><span class="k">玻璃基板芯片技术/7nm 工艺突破/Agent 运行时 Walrus</span></div></div>
+  <div class="row"><span class="label">最大主题</span><p>高性能 AI 硬件迭代与 Agent 专用基建（占本板块约 50%）</p></div>
+  <div class="row"><span class="label">核心问题</span><p>如何解决 Agent 频繁调用导致的吞吐瓶颈与高昂 Token 成本，并兼顾本地化部署的算力需求。</p></div>
+  <div class="row"><span class="label">典型方向</span><ul><li>硬件级上下文优化：通过存储层增加内存（如 BlueField-4 STX）加速 Agent 吞吐，解决长上下文读取延迟。</li><li>软件层成本压降：利用零配置提示词缓存（如 Claude Code）与 API 预算精细化控制，实现最高 90% 的成本削减。</li><li>本地化与端侧部署：采用万亿参数级桌面超算（DGX Station）与轻量化模型量化（如 Qwen3.5/Nemotron-3-Nano）平衡隐私与性能。</li></ul></div>
+</div>
+
+  </div>
+  <div class="grid">
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#31</span>
+    <span class="badge score">Score 92</span>
+    <span class="badge cat">hardware</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>英伟达发布 Vera Rubin 七芯片 AI 平台，三巨头已接入</h3>
+  <div class="subtitle">Nvidia introduces Vera Rubin, a seven-chip AI platform with OpenAI, Anthropic and Meta on board</div>
+  <p class="summary">新一代 AI 硬件平台获得 OpenAI、Anthropic 和 Meta 支持，将定义未来大模型算力基准。</p>
+  <div class="meta">来源：VentureBeat AI</div>
+  <a class="link" href="https://venturebeat.com/infrastructure/nvidia-introduces-vera-rubin-a-seven-chip-ai-platform-with-openai-anthropic" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#32</span>
+    <span class="badge score">Score 90</span>
+    <span class="badge cat">hardware</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>英伟达 BlueField-4 STX 引入上下文存储层加速 Agent 吞吐</h3>
+  <div class="subtitle">Nvidia BlueField-4 STX adds a context memory layer to storage to close the agentic AI throughput gap</div>
+  <p class="summary">通过在存储层增加上下文内存，解决 Agent 频繁调用导致的吞吐瓶颈，直接提升 Agentic 工作流效率。</p>
+  <div class="meta">来源：VentureBeat AI</div>
+  <a class="link" href="https://venturebeat.com/data/nvidia-bluefield-4-stx-adds-a-context-memory-layer-to-storage-to-close-the" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#33</span>
+    <span class="badge score">Score 90</span>
+    <span class="badge cat">open_source</span>
+    <span class="badge ch">GitHub</span>
+  </div>
+  <h3>Claude Code 自动提示词缓存：最高降低 90% Token 成本</h3>
+  <div class="subtitle">[GitHub EMERGING] flightlesstux/prompt-caching (+80 stars)</div>
+  <p class="summary">针对长对话和重复文件读取实现零配置自动缓存，显著优化开发者使用 Claude 的推理成本。</p>
+  <div class="meta">来源：GitHub/TypeScript</div>
+  <a class="link" href="https://github.com/flightlesstux/prompt-caching" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#34</span>
+    <span class="badge score">Score 88</span>
+    <span class="badge cat">hardware</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>玻璃基板 AI 芯片时代开启，大幅提升数据中心算力密度</h3>
+  <div class="subtitle">Future AI chips could be built on glass</div>
+  <p class="summary">玻璃基板技术有望取代传统有机材料，为下一代 AI 芯片提供更高的互连密度和更优的热管理方案。</p>
+  <div class="meta">来源：MIT Tech Review</div>
+  <a class="link" href="https://www.technologyreview.com/2026/03/13/1134230/future-ai-chips-could-be-built-on-glass/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#35</span>
+    <span class="badge score">Score 87</span>
+    <span class="badge cat">security</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>英伟达版 OpenClaw 发布，重点解决 AI 代理安全痛点</h3>
+  <div class="subtitle">Nvidia’s version of OpenClaw could solve its biggest problem: security</div>
+  <p class="summary">针对 Agent 框架的安全性提供了官方解决方案，包含沙箱隔离与审计链路等实战功能。</p>
+  <div class="meta">来源：TechCrunch AI</div>
+  <a class="link" href="https://techcrunch.com/2026/03/16/nvidias-version-of-openclaw-could-solve-its-biggest-problem-security/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#36</span>
+    <span class="badge score">Score 87</span>
+    <span class="badge cat">hardware</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>英伟达发布 DGX Station：支持本地运行万亿参数模型的桌面超算</h3>
+  <div class="subtitle">Nvidia's DGX Station is a desktop supercomputer that runs trillion-parameter AI models without the cloud</div>
+  <p class="summary">无需云端即可运行超大规模模型，为隐私敏感型企业和开发者提供强大的本地算力基建。</p>
+  <div class="meta">来源：VentureBeat AI</div>
+  <a class="link" href="https://venturebeat.com/infrastructure/nvidias-dgx-station-is-a-desktop-supercomputer-that-runs-trillion-parameter" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#37</span>
+    <span class="badge score">Score 86</span>
+    <span class="badge cat">hardware</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>英伟达 Rubin GPU 性能披露：最大吞吐量提升仅为 2 倍</h3>
+  <div class="subtitle">NVIDIA admits to only 2x performance boost at max throughput with new generation of Rubin GPUs</div>
+  <p class="summary">下一代 GPU 性能增幅放缓，可能迫使开发者更多转向软件层面的推理优化而非单纯依赖硬件。</p>
+  <div class="meta">来源：r/LocalLLaMA</div>
+  <a class="link" href="https://www.reddit.com/r/LocalLLaMA/comments/1rvmfdd/nvidia_admits_to_only_2x_performance_boost_at_max/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#38</span>
+    <span class="badge score">Score 85</span>
+    <span class="badge cat">other</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>Google 更新 Gemini API：支持设置月度支出上限</h3>
+  <div class="subtitle">Giving you more transparency and control over your Gemini API costs</div>
+  <p class="summary">开发者现在可以更精确地控制 API 预算，降低了应用上线后的财务风险。</p>
+  <div class="meta">来源：Google AI Blog</div>
+  <a class="link" href="https://blog.google/innovation-and-ai/technology/developers-tools/more-control-over-gemini-api-costs/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#39</span>
+    <span class="badge score">Score 85</span>
+    <span class="badge cat">hardware</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>英伟达 GTC 主题演讲开启：算力基建新风向标</h3>
+  <div class="subtitle">NVIDIA GTC keynote starting, 20K people waiting at NHL arena</div>
+  <p class="summary">数万人关注的英伟达 GTC 大会正式开始，预计将发布影响全球 AI 算力布局的新型 GPU 与互联技术。</p>
+  <div class="meta">来源：r/singularity</div>
+  <a class="link" href="https://www.reddit.com/r/singularity/comments/1rvhaua/nvidia_gtc_keynote_starting_20k_people_waiting_at/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#40</span>
+    <span class="badge score">Score 84</span>
+    <span class="badge cat">hardware</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>Memories AI 打造视觉记忆层：为可穿戴设备与机器人赋能</h3>
+  <div class="subtitle">Memories AI is building the visual memory layer for wearables and robotics</div>
+  <p class="summary">专注于为具身智能提供长期视觉记忆架构，是机器人与硬件 AI 领域的关键基建突破。</p>
+  <div class="meta">来源：TechCrunch AI</div>
+  <a class="link" href="https://techcrunch.com/2026/03/16/memories-ai-is-building-the-visual-memory-layer-for-wearables-and-robotics/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#41</span>
+    <span class="badge score">Score 82</span>
+    <span class="badge cat">m_and_a</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>谷歌完成对云安全巨头 Wiz 的收购：强化 AI 云基建安全</h3>
+  <div class="subtitle">Google completes acquisition of Wiz</div>
+  <p class="summary">通过整合 Wiz 的安全能力，谷歌旨在为其 AI 基础设施提供更深层的合规与防护保障。</p>
+  <div class="meta">来源：Google AI Blog</div>
+  <a class="link" href="https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/wiz-acquisition/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#42</span>
+    <span class="badge score">Score 82</span>
+    <span class="badge cat">github_trending</span>
+    <span class="badge ch">GitHub</span>
+  </div>
+  <h3>Walrus：可组合的 Rust 编写 Agent 运行时环境</h3>
+  <div class="subtitle">[GitHub EMERGING] openwalrus/walrus (+261 stars)</div>
+  <p class="summary">高性能的 Agent 运行时，强调组件的可组合性，为开发者提供更底层的 Agent 编排能力。</p>
+  <div class="meta">来源：GitHub/Rust</div>
+  <a class="link" href="https://github.com/openwalrus/walrus" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#43</span>
+    <span class="badge score">Score 79</span>
+    <span class="badge cat">geopolitics</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>华虹半导体突破 7nm 工艺，助力中国 AI 芯片自主</h3>
+  <div class="subtitle">Hua Hong becomes the second Chinese chipmaker to crack 7nm manufacturing as Beijing pushes for AI independence</div>
+  <p class="summary">中国第二家芯片厂商掌握 7nm 技术，对缓解地缘政治下的算力限制具有战略意义。</p>
+  <div class="meta">来源：THE DECODER</div>
+  <a class="link" href="https://the-decoder.com/hua-hong-becomes-the-second-chinese-chipmaker-to-crack-7nm-manufacturing-as-beijing-pushes-for-ai-independence/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#44</span>
+    <span class="badge score">Score 78</span>
+    <span class="badge cat">open_source</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>英伟达Nemotron-3-Nano 4B模型GGUF版发布</h3>
+  <div class="subtitle">NVIDIA-Nemotron-3-Nano-4B-GGUF</div>
+  <p class="summary">针对端侧设备优化的4B轻量级模型量化版，为本地化部署和低功耗AI应用提供新选择。</p>
+  <div class="meta">来源：r/LocalLLaMA</div>
+  <a class="link" href="https://huggingface.co/unsloth/NVIDIA-Nemotron-3-Nano-4B-GGUF" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#45</span>
+    <span class="badge score">Score 78</span>
+    <span class="badge cat">open_source</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>Qwen3.5-27b 量化评测：8位与16位推理性能对比</h3>
+  <div class="subtitle">Qwen3.5-27b 8 bit vs 16 bit</div>
+  <p class="summary">针对 Qwen3.5 新模型的量化损失测试，为开发者在本地部署时平衡推理成本与精度提供参考。</p>
+  <div class="meta">来源：r/LocalLLaMA</div>
+  <a class="link" href="https://www.reddit.com/r/LocalLLaMA/comments/1rvcwzx/qwen3527b_8_bit_vs_16_bit/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#46</span>
+    <span class="badge score">Score 75</span>
+    <span class="badge cat">gaming</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>英伟达 DLSS 5 陷入争议：AI 滤镜被指过度修改画面真实性</h3>
+  <div class="subtitle">‘This is just a garbage AI Filter’: Nvidia met with criticism for DLSS 5’s ‘photoreal’ graphics alterations</div>
+  <p class="summary">DLSS 5 引入的 AI 画面重构技术引发游戏界对“真实性”的讨论，反映了 AI 渲染技术的边界问题。</p>
+  <div class="meta">来源：r/technology</div>
+  <a class="link" href="https://www.videogameschronicle.com/news/this-is-just-a-garbage-ai-filter-nvidia-met-with-criticism-for-dlss-5s-photoreal-graphics-alterations/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#47</span>
+    <span class="badge score">Score 75</span>
+    <span class="badge cat">hardware</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>NVIDIA DLSS 5.0 曝光：2026 年秋季重塑 AI 游戏渲染</h3>
+  <div class="subtitle">DLSS 5.0 - fall 2026</div>
+  <p class="summary">下一代 AI 渲染技术 DLSS 5.0 的路线图曝光，展示了 AI 硬件基建在图形处理领域的长期演进。</p>
+  <div class="meta">来源：r/ChatGPT</div>
+  <a class="link" href="https://www.reddit.com/r/ChatGPT/comments/1rvj2c8/dlss_50_fall_2026/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#48</span>
+    <span class="badge score">Score 74</span>
+    <span class="badge cat">hardware</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>英伟达 GTC 2026：用算力解决机器人训练数据短缺</h3>
+  <div class="subtitle">GTC 2026: Nvidia wants to swap robotics' data problem for a compute problem</div>
+  <p class="summary">Nvidia 推广物理 AI 平台，通过仿真计算生成合成数据，加速具身智能落地。</p>
+  <div class="meta">来源：THE DECODER</div>
+  <a class="link" href="https://the-decoder.com/gtc-2026-nvidia-wants-to-swap-robotics-data-problem-for-a-compute-problem/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#49</span>
+    <span class="badge score">Score 72</span>
+    <span class="badge cat">github_trending</span>
+    <span class="badge ch">GitHub</span>
+  </div>
+  <h3>rt-claw：旨在降低 AI 助手使用成本的开源项目</h3>
+  <div class="subtitle">[GitHub EMERGING] zevorn/rt-claw (+310 stars)</div>
+  <p class="summary">通过技术手段优化 AI 助手运行效率，核心目标是让 AI 交互变得更加廉价和普及。</p>
+  <div class="meta">来源：GitHub/C</div>
+  <a class="link" href="https://github.com/zevorn/rt-claw" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#50</span>
+    <span class="badge score">Score 65</span>
+    <span class="badge cat">hardware</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>英伟达DGX Station通过OEM渠道开放供应</h3>
+  <div class="subtitle">DGX Station is available (via OEM distributors)</div>
+  <p class="summary">企业级AI工作站硬件供应渠道更新，有助于中小团队获取本地化大模型训练与推理算力。</p>
+  <div class="meta">来源：r/LocalLLaMA</div>
+  <a class="link" href="https://www.reddit.com/r/LocalLLaMA/comments/1rvnppg/dgx_station_is_available_via_oem_distributors/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#51</span>
+    <span class="badge score">Score 65</span>
+    <span class="badge cat">github_trending</span>
+    <span class="badge ch">GitHub</span>
+  </div>
+  <h3>OpenAI OAuth：通过 ChatGPT 账号免费获取 API 访问</h3>
+  <div class="subtitle">[GitHub EMERGING] EvanZhouDev/openai-oauth (+106 stars)</div>
+  <p class="summary">一种利用现有账号权限获取 API 访问的工具，虽然存在合规风险，但在开发者社区有一定关注度。</p>
+  <div class="meta">来源：GitHub/TypeScript</div>
+  <a class="link" href="https://github.com/EvanZhouDev/openai-oauth" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#52</span>
+    <span class="badge score">Score 60</span>
+    <span class="badge cat">other</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>三星投资能源初创公司：利用 AI 软件优化电网管理</h3>
+  <div class="subtitle">Samsung bets this island startup can tame the grid with software and batteries</div>
+  <p class="summary">展示了 AI 在能源基础设施管理中的跨界应用，属于绿色 AI 基建范畴。</p>
+  <div class="meta">来源：TechCrunch AI</div>
+  <a class="link" href="https://techcrunch.com/2026/03/16/samsung-bets-this-island-startup-can-tame-the-grid-with-software-and-batteries/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#53</span>
+    <span class="badge score">Score 60</span>
+    <span class="badge cat">security</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>OpenCode本地化争议：开发者质疑其隐私与运行机制</h3>
+  <div class="subtitle">OpenCode concerns (not truely local)</div>
+  <p class="summary">社区对所谓“本地”编程工具的数据回传机制提出质疑，强调了AI工具选型中的数据安全考量。</p>
+  <div class="meta">来源：r/LocalLLaMA</div>
+  <a class="link" href="https://www.reddit.com/r/LocalLLaMA/comments/1rv690j/opencode_concerns_not_truely_local/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+</div>
+</section>
+
+<section id="panel-公司层面_Company_Industry" class="panel">
+  <div class="section-head">
+    <h2>公司层面（Company/Industry）</h2>
+    
+<div class="summary-card">
+  <div class="row"><span class="label">一句话总趋势</span><p>全球 AI 巨头通过超大规模并购与算力基建竞赛强化垄断地位，同时版权诉讼与合规压力迫使行业建立数据使用新红线。</p></div>
+  <div class="row"><span class="label">关键词</span><div class="keywords"><span class="k">xAI / SpaceX 合并、英伟达 Blackwell/Hyperion 平台、ATH 事业群</span><span class="k">版权合规（大英百科全书/梅里亚姆-韦伯斯特诉讼）、AI 安全审计、内容过滤沙箱</span><span class="k">自动驾驶、金融并购 ROI 优化、个人 Agent 研发</span></div></div>
+  <div class="row"><span class="label">最大主题</span><p>AI 产业整合与算力基建扩张（涉及马斯克 xAI 估值、Meta 云协议及英伟达硬件路线图）</p></div>
+  <div class="row"><span class="label">核心问题</span><p>如何在追求算力规模与商业化变现（如 ChatGPT 广告）的同时，解决高质量训练数据的版权合法性及生成内容的合规安全风险。</p></div>
+  <div class="row"><span class="label">典型方向</span><ul><li>垂直领域高 ROI 落地：通过生成式 AI 降低金融并购等复杂商业场景的执行成本。</li><li>算力与基建深度绑定：车企（比亚迪/吉利）接入标准化自动驾驶平台，巨头通过长期云协议锁定算力供应。</li><li>核心人才与开源生态整合：通过收购初创公司（如苹果收购 MotionVFX）或招募顶级开源作者（如 OpenClaw 创始人入职 OpenAI）加速产品迭代。</li></ul></div>
+</div>
+
+  </div>
+  <div class="grid">
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#1</span>
+    <span class="badge score">Score 94</span>
+    <span class="badge cat">m_and_a</span>
+    <span class="badge ch">Tavily</span>
+  </div>
+  <h3>马斯克推动 xAI 与 SpaceX 合并，估值达 1.25 万亿美元</h3>
+  <div class="subtitle">Musk's xAI, SpaceX merger valued at $1.25 trillion, the ...</div>
+  <p class="summary">史上最大规模合并案，将 AI 能力与航天基建深度绑定，重塑全球科技竞争格局。</p>
+  <div class="meta">来源：Tavily/cnbc.com</div>
+  <a class="link" href="https://www.cnbc.com/2026/02/03/musk-xai-spacex-biggest-merger-ever.html" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#2</span>
+    <span class="badge score">Score 88</span>
+    <span class="badge cat">open_source</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>Mistral AI联手英伟达加入Nemotron联盟加速模型开发</h3>
+  <div class="subtitle">Mistral AI partners with NVIDIA to accelerate open frontier models</div>
+  <p class="summary">Mistral作为创始成员加入英伟达Nemotron联盟，将贡献大规模模型开发经验与多模态能力，强化开源生态。</p>
+  <div class="meta">来源：r/LocalLLaMA</div>
+  <a class="link" href="https://mistral.ai/news/mistral-ai-and-nvidia-partner-to-accelerate-open-frontier-models" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#3</span>
+    <span class="badge score">Score 85</span>
+    <span class="badge cat">m_and_a</span>
+    <span class="badge ch">Tavily</span>
+  </div>
+  <h3>AI 行业并购大潮：2025 年巨头交易如何重塑 2026 市场</h3>
+  <div class="subtitle">AI Company M&amp;A: How 2025 Deals Shape 2026 Market</div>
+  <p class="summary">分析了 Google、Meta、IBM 等巨头的大规模收购案，揭示了 AI 基础设施与生态竞争格局的剧烈变化。</p>
+  <div class="meta">来源：Tavily/index.dev</div>
+  <a class="link" href="https://www.index.dev/blog/top-ai-company-acquisitions" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#4</span>
+    <span class="badge score">Score 85</span>
+    <span class="badge cat">hardware</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>英伟达 GTC 2026 预览：黄仁勋将揭秘物理 AI 与机器人新进展</h3>
+  <div class="subtitle">How to watch Jensen Huang’s Nvidia GTC 2026 keynote — and what to expect</div>
+  <p class="summary">GTC 大会将聚焦物理 AI 与全球机器人协作，是开发者了解英伟达最新硬件架构与软件生态的关键窗口。</p>
+  <div class="meta">来源：TechCrunch AI</div>
+  <a class="link" href="https://techcrunch.com/2026/03/16/nvidia-gtc-how-to-watch-jensen-huang-2026-keynote/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#5</span>
+    <span class="badge score">Score 83</span>
+    <span class="badge cat">hardware</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>Meta 签署 270 亿美元云协议，重金押注 AI 算力基建</h3>
+  <div class="subtitle">Meta signs $27 billion cloud deal with Nebius in one of the largest AI infrastructure bets yet</div>
+  <p class="summary">Meta 与 Nebius 的巨额交易预示了未来 AI 算力供应格局的变化，影响长期算力成本。</p>
+  <div class="meta">来源：THE DECODER</div>
+  <a class="link" href="https://the-decoder.com/meta-signs-27-billion-cloud-deal-with-nebius-in-one-of-the-largest-ai-infrastructure-bets-yet/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#6</span>
+    <span class="badge score">Score 82</span>
+    <span class="badge cat">security</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>大英百科全书起诉 OpenAI，指控其非法使用版权数据训练</h3>
+  <div class="subtitle">Encyclopedia Britannica sues OpenAI over AI training</div>
+  <p class="summary">权威知识库对 AI 巨头的版权诉讼，可能影响未来高质量训练数据的获取成本与合规门槛。</p>
+  <div class="meta">来源：r/technology</div>
+  <a class="link" href="https://finance.yahoo.com/news/encyclopedia-britannica-sues-openai-over-141324436.html" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#7</span>
+    <span class="badge score">Score 82</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>ChatGPT 即将引入广告：OpenAI 开启商业化新阶段</h3>
+  <div class="subtitle">Ads in your chats</div>
+  <p class="summary">OpenAI 计划在 ChatGPT 中投放广告，这标志着 AI 终端产品从纯订阅模式向流量变现模式的转变。</p>
+  <div class="meta">来源：Bens Bites</div>
+  <a class="link" href="https://www.bensbites.com/p/ads-in-your-chats" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#8</span>
+    <span class="badge score">Score 82</span>
+    <span class="badge cat">m_and_a</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>OpenClaw 创始人加入 OpenAI，个人 Agent 研发加速</h3>
+  <div class="subtitle">Dreaming up personal agents</div>
+  <p class="summary">知名开源项目 OpenClaw 的核心开发者入职 OpenAI，预示着顶级实验室将加大在自主 Agent 领域的投入。</p>
+  <div class="meta">来源：Bens Bites</div>
+  <a class="link" href="https://www.bensbites.com/p/dreaming-up-personal-agents" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#9</span>
+    <span class="badge score">Score 80</span>
+    <span class="badge cat">geopolitics</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>比亚迪与吉利将采用英伟达 Hyperion 自动驾驶平台</h3>
+  <div class="subtitle">Nvidia says China’s BYD and Geely will use its robotaxi platform</div>
+  <p class="summary">中国头部车企接入英伟达 Robotaxi 平台，反映了 AI 自动驾驶基建的全球竞争格局。</p>
+  <div class="meta">来源：The Verge</div>
+  <a class="link" href="https://www.theverge.com/tech/895301/nvidia-robotaxi-byd-geely-hyperion-lyft-halos" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#10</span>
+    <span class="badge score">Score 80</span>
+    <span class="badge cat">geopolitics</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>黄仁勋预测 Blackwell 与 Vera Rubin 销售额将达万亿美元</h3>
+  <div class="subtitle">Jensen Huang just put Nvidia’s Blackwell and Vera Rubin sales projections into the $1 trillion stratosphere</div>
+  <p class="summary">英伟达展示了极其激进的硬件路线图，预示着全球 AI 算力基建投资将持续处于巅峰。</p>
+  <div class="meta">来源：TechCrunch AI</div>
+  <a class="link" href="https://techcrunch.com/2026/03/16/jensen-just-put-nvidias-blackwell-and-vera-rubin-sales-projections-into-the-1-trillion-stratosphere/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#11</span>
+    <span class="badge score">Score 80</span>
+    <span class="badge cat">m_and_a</span>
+    <span class="badge ch">Tavily</span>
+  </div>
+  <h3>AI 需求驱动 700 亿美元数据中心并购，基建扩张加速</h3>
+  <div class="subtitle">AI Has Fueled $70 Billion in Data Center M&amp;A Talks This ...</div>
+  <p class="summary">算力需求爆发导致数据中心资源成为稀缺资产，大规模并购反映了底层基建的竞争白热化。</p>
+  <div class="meta">来源：Tavily/bloomberg.com</div>
+  <a class="link" href="https://www.bloomberg.com/news/articles/2025-12-29/ai-has-fueled-70-billion-in-data-center-m-a-talks-this-year" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#12</span>
+    <span class="badge score">Score 79</span>
+    <span class="badge cat">fintech</span>
+    <span class="badge ch">Tavily</span>
+  </div>
+  <h3>生成式 AI 显著优化金融效率：降低并购成本达 30%</h3>
+  <div class="subtitle">Gen AI Reduces Merger and Acquisition Costs by Up to 30%</div>
+  <p class="summary">展示了 AI 在金融垂直领域的明确 ROI，证明了其在复杂商业决策中的落地价值。</p>
+  <div class="meta">来源：Tavily/financemarketresearch.com</div>
+  <a class="link" href="https://www.financemarketresearch.com/post/gen-ai-reduces-merger-and-acquisition-costs-by-up-to-30" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#13</span>
+    <span class="badge score">Score 78</span>
+    <span class="badge cat">m_and_a</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>阿里整合 AI 业务成立 ATH 事业群，由 CEO 吴泳铭直管</h3>
+  <div class="subtitle">Alibaba consolidates AI efforts under new business unit led by CEO</div>
+  <p class="summary">阿里巴巴将 AI 资源向 Token Hub 集中，反映了国内巨头在模型生态上的战略收缩与聚焦。</p>
+  <div class="meta">来源：THE DECODER</div>
+  <a class="link" href="https://the-decoder.com/alibaba-consolidates-ai-efforts-under-new-business-unit-led-by-ceo/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#14</span>
+    <span class="badge score">Score 78</span>
+    <span class="badge cat">security</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>大英百科全书起诉 OpenAI 侵犯版权并“背诵”内容</h3>
+  <div class="subtitle">Encyclopedia Britannica is suing OpenAI for allegedly ‘memorizing’ its content with ChatGPT</div>
+  <p class="summary">指控 ChatGPT 输出近乎一致的百科内容，涉及 AI 训练数据合规性与版权红线。</p>
+  <div class="meta">来源：The Verge</div>
+  <a class="link" href="https://www.theverge.com/ai-artificial-intelligence/895372/encyclopedia-britannica-openai-lawsuit" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#15</span>
+    <span class="badge score">Score 78</span>
+    <span class="badge cat">m_and_a</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>散热芯片初创公司 Frore 融资后估值达 16.4 亿美元跻身独角兽</h3>
+  <div class="subtitle">Another deep tech chip startup becomes a unicorn: Frore hits $1.64B</div>
+  <p class="summary">Frore 的固态散热技术解决了高性能 AI 芯片的功耗瓶颈，受到资本市场高度认可。</p>
+  <div class="meta">来源：TechCrunch AI</div>
+  <a class="link" href="https://techcrunch.com/2026/03/16/another-deep-tech-chip-startup-becomes-a-unicorn-frore-hits-1-64b/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#16</span>
+    <span class="badge score">Score 75</span>
+    <span class="badge cat">ai_product</span>
+    <span class="badge ch">Tavily</span>
+  </div>
+  <h3>Claude登顶美区App Store，超越ChatGPT位列第一</h3>
+  <div class="subtitle">Anthropic's Claude passes ChatGPT in App Store as users ... - Fortune</div>
+  <p class="summary">受益于市场竞争变化，Claude移动端下载量首次超越ChatGPT，标志着AI应用竞争进入白热化。</p>
+  <div class="meta">来源：Tavily/fortune.com</div>
+  <a class="link" href="https://fortune.com/2026/03/02/anthropic-claude-dario-amodei-number-one-app-store-openai-chatgpt-sam-altman-department-war/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#17</span>
+    <span class="badge score">Score 75</span>
+    <span class="badge cat">other</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>梅里亚姆-韦伯斯特起诉 OpenAI，版权争议延至词典领域</h3>
+  <div class="subtitle">The dictionary sues OpenAI</div>
+  <p class="summary">词典出版商指控 OpenAI 未经授权使用其结构化定义数据训练模型，涉及训练数据的合规性边界。</p>
+  <div class="meta">来源：TechCrunch AI</div>
+  <a class="link" href="https://techcrunch.com/2026/03/16/merriam-webster-openai-encyclopedia-brittanica-lawsuit/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#18</span>
+    <span class="badge score">Score 72</span>
+    <span class="badge cat">security</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>xAI 因 Grok 生成有害图像面临青少年群体起诉</h3>
+  <div class="subtitle">Teens sue Elon Musk’s xAI over Grok’s AI-generated CSAM</div>
+  <p class="summary">涉及 AI 安全合规与内容审查漏洞，对模型服务商的沙箱隔离与审计提出挑战。</p>
+  <div class="meta">来源：The Verge</div>
+  <a class="link" href="https://www.theverge.com/ai-artificial-intelligence/895639/xai-grok-teens-lawsuit-grok-ai-elon-musk" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#19</span>
+    <span class="badge score">Score 72</span>
+    <span class="badge cat">other</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>风投大佬 Bill Gurley 预警 AI 泡沫：行业大洗牌即将到来</h3>
+  <div class="subtitle">Bill Gurley on AI bubble: A bunch of people got rich quick and a reset is coming</div>
+  <p class="summary">资深投资者对当前 AI 投资热潮的冷思考，提醒开发者与创业者关注真实业务价值而非炒作。</p>
+  <div class="meta">来源：r/technology</div>
+  <a class="link" href="https://www.cnbc.com/2026/03/16/bill-gurley-ai-bubble-get-rich-quick.html" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#20</span>
+    <span class="badge score">Score 72</span>
+    <span class="badge cat">m_and_a</span>
+    <span class="badge ch">Tavily</span>
+  </div>
+  <h3>科技巨头开启千亿美元AI收购潮，争夺人才与硬件</h3>
+  <div class="subtitle">Big Tech's $100B AI Acquisition Spree Intensifies - M&amp;A Alerts</div>
+  <p class="summary">全球科技巨头在AI领域的并购支出已突破千亿美元，重点在于获取顶级人才和核心硬件创新能力。</p>
+  <div class="meta">来源：Tavily/maadvisor.com</div>
+  <a class="link" href="https://maadvisor.com/maalerts/big-techs-100b-ai-acquisition-spree-intensifies/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#21</span>
+    <span class="badge score">Score 72</span>
+    <span class="badge cat">m_and_a</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>AI 投融资热度不减：6000 万美元种子轮频现</h3>
+  <div class="subtitle">Something big is happening</div>
+  <p class="summary">探讨了当前 AI 初创公司极高的融资门槛，反映了资本市场对 Agent 和底层技术的持续看好。</p>
+  <div class="meta">来源：Bens Bites</div>
+  <a class="link" href="https://www.bensbites.com/p/something-big-is-happening" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#22</span>
+    <span class="badge score">Score 70</span>
+    <span class="badge cat">security</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>大英百科全书起诉 OpenAI，指控其未经许可训练数据</h3>
+  <div class="subtitle">Encyclopedia Britannica sues OpenAI for training on nearly 100,000 articles without permission</div>
+  <p class="summary">版权诉讼持续增加，可能影响未来模型训练数据的获取成本与合规要求。</p>
+  <div class="meta">来源：THE DECODER</div>
+  <a class="link" href="https://the-decoder.com/encyclopedia-britannica-sues-openai-for-training-on-nearly-100000-articles-without-permission/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#23</span>
+    <span class="badge score">Score 68</span>
+    <span class="badge cat">geopolitics</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>五角大楼的 AI 战争：军事目标锁定与对 Claude 的限制</h3>
+  <div class="subtitle">The Download: how AI is used for military targeting, and the Pentagon’s war on Claude</div>
+  <p class="summary">探讨 AI 在军事领域的实战应用及政府对特定模型安全性的担忧。</p>
+  <div class="meta">来源：MIT Tech Review</div>
+  <a class="link" href="https://www.technologyreview.com/2026/03/13/1134278/the-download-defense-official-ai-chatbots-targeting-pentagon-claude-pollute-military-supply-chain/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#24</span>
+    <span class="badge score">Score 68</span>
+    <span class="badge cat">geopolitics</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>地缘政治风险：OpenAI 技术在受制裁地区的潜在渗透</h3>
+  <div class="subtitle">Where OpenAI’s technology could show up in Iran</div>
+  <p class="summary">分析 AI 技术的跨境合规与出口管制风险，对全球化部署的应用开发者具有警示作用。</p>
+  <div class="meta">来源：MIT Tech Review</div>
+  <a class="link" href="https://www.technologyreview.com/2026/03/16/1134315/where-openais-technology-could-show-up-in-iran/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#25</span>
+    <span class="badge score">Score 68</span>
+    <span class="badge cat">security</span>
+    <span class="badge ch">Reddit</span>
+  </div>
+  <h3>xAI因Grok生成不当图像面临诉讼，引发合规关注</h3>
+  <div class="subtitle">Teens Sue xAI Over Sexualized Images Generated by Grok / Sexualized images of the girls, created by Grok, were allegedly shared across Discord and Telegram groups.</div>
+  <p class="summary">针对Grok生成合规性漏洞的法律诉讼，提醒开发者在多模态应用中必须加强内容安全过滤。</p>
+  <div class="meta">来源：r/technology</div>
+  <a class="link" href="https://gizmodo.com/teens-sue-xai-over-sexualized-images-generated-by-grok-2000734137" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#26</span>
+    <span class="badge score">Score 68</span>
+    <span class="badge cat">other</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>Google 设立 Platform 37 与 AI Exchange 创新空间</h3>
+  <div class="subtitle">Platform 37 and The AI Exchange: new spaces for AI innovation and discovery</div>
+  <p class="summary">DeepMind 在伦敦设立新的 AI 研究与交流中心，旨在促进开发者生态与前沿技术的融合。</p>
+  <div class="meta">来源：Google AI Blog</div>
+  <a class="link" href="https://blog.google/company-news/inside-google/around-the-globe/google-europe/united-kingdom/platform-37-the-ai-exchange/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#27</span>
+    <span class="badge score">Score 65</span>
+    <span class="badge cat">geopolitics</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>美议员质疑五角大楼授予 xAI 访问机密网络的权限</h3>
+  <div class="subtitle">Warren presses Pentagon over decision to grant xAI access to classified networks</div>
+  <p class="summary">涉及 AI 公司的政府合规与安全准入，反映了 AI 在敏感领域的监管压力。</p>
+  <div class="meta">来源：TechCrunch AI</div>
+  <a class="link" href="https://techcrunch.com/2026/03/16/warren-presses-pentagon-over-decision-to-grant-xai-access-to-classified-networks/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#28</span>
+    <span class="badge score">Score 65</span>
+    <span class="badge cat">security</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>xAI 面临法律诉讼：Grok 生成内容涉及合规风险</h3>
+  <div class="subtitle">Elon Musk’s xAI faces child porn lawsuit from minors Grok allegedly undressed</div>
+  <p class="summary">该诉讼凸显了 AI 模型在内容生成安全过滤方面的严峻挑战及法律责任。</p>
+  <div class="meta">来源：TechCrunch AI</div>
+  <a class="link" href="https://techcrunch.com/2026/03/16/elon-musks-xai-faces-child-porn-lawsuit-from-minors-grok-allegedly-undressed/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#29</span>
+    <span class="badge score">Score 65</span>
+    <span class="badge cat">geopolitics</span>
+    <span class="badge ch">Tavily</span>
+  </div>
+  <h3>路透社 AI 行业动态汇总：监管与市场趋势</h3>
+  <div class="subtitle">AI News  - Latest Headlines and Developments  - Reuters</div>
+  <p class="summary">汇总全球 AI 政策监管、企业融资及地缘政治对技术供应链的影响。</p>
+  <div class="meta">来源：Tavily/reuters.com</div>
+  <a class="link" href="https://www.reuters.com/technology/artificial-intelligence/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+
+<article class="card">
+  <div class="card-top">
+    <span class="badge">#30</span>
+    <span class="badge score">Score 63</span>
+    <span class="badge cat">other</span>
+    <span class="badge ch">RSS</span>
+  </div>
+  <h3>OpenAI 的新挑战：如何让企业在 ChatGPT 之外使用 AI</h3>
+  <div class="subtitle">OpenAI's biggest problem may not be building AI but getting companies to actually use it beyond ChatGPT</div>
+  <p class="summary">分析了企业级 AI 落地中的阻碍，对 AI 咨询与集成服务商有参考价值。</p>
+  <div class="meta">来源：THE DECODER</div>
+  <a class="link" href="https://the-decoder.com/openais-biggest-problem-may-not-be-building-ai-but-getting-companies-to-actually-use-it-beyond-chatgpt/" target="_blank" rel="noopener noreferrer">查看原文 ↗</a>
+</article>
+</div>
+</section>
+</div>
+  </div>
+
+  <script>
+    (function() {
+      const tabs = Array.from(document.querySelectorAll('.tab-btn'));
+      const panels = Array.from(document.querySelectorAll('.panel'));
+      function activate(btn) {
+        const target = btn.getAttribute('data-target');
+        tabs.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        panels.forEach(p => p.classList.remove('active'));
+        const panel = document.getElementById(target);
+        if (panel) panel.classList.add('active');
+      }
+      tabs.forEach((btn, idx) => {
+        if (idx === 0) btn.classList.add('active');
+        btn.addEventListener('click', () => activate(btn));
+      });
+    })();
+  </script>
+</body>
+</html>
