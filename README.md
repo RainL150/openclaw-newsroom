@@ -2,32 +2,7 @@
 
 <a href="https://t.me/genaispot"><img src="assets/gen-ai-spotlight-logo.jpg" width="120" align="left" style="margin-right: 16px;" /></a>
 
-**See it in action:** This pipeline powers [Gen AI Spotlight](https://t.me/genaispot) on Telegram — a fully automated AI news channel. Join to see what the output looks like in production.
-
-<br clear="left"/>
-
-### Video Walkthroughs
-
-<table>
-<tr>
-<td width="50%">
-<a href="https://youtu.be/2nk5CqrXX9E"><img src="assets/video-thumbnail-1.jpg" width="100%" /></a>
-<br/><a href="https://youtu.be/2nk5CqrXX9E">Building the News Scan Pipeline</a>
-</td>
-<td width="50%">
-<a href="https://youtu.be/cvdAqCM1wGs"><img src="assets/video-thumbnail-2.jpg" width="100%" /></a>
-<br/><a href="https://youtu.be/cvdAqCM1wGs">Pipeline Deep Dive & Demo</a>
-</td>
-</tr>
-</table>
-
----
-
-A complete, automated AI news scanning pipeline for [OpenClaw](https://github.com/openclaw/openclaw). Scans 5 data sources every 2 hours, scores and deduplicates results, enriches top articles with full text, and uses Gemini Flash as an AI editor to curate the best stories for your channel.
-
-**Pipeline cost:** ~$5/month (Gemini Flash API + Tavily free tier)
-
----
+<img width="1103" height="820" alt="image" src="https://github.com/user-attachments/assets/a39fe3a3-0468-4f67-ac08-0080b4ebbd4a" />
 
 ## How This Fits Into OpenClaw
 
