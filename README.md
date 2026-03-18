@@ -153,36 +153,29 @@ Edit `editorial_profile.md` to reflect your channel's voice: topics to always pi
 
 ### Step 4: Set Environment Variables
 
-Add API keys to your OpenClaw LaunchAgent plist (macOS):
+**Recommended: `.env` file** (works for both manual runs and cron jobs)
+
+`news_scan_deduped.sh` automatically loads `~/.openclaw/workspace/.env` on startup, so cron jobs and interactive shells behave identically.
 
 ```bash
-# Edit ~/Library/LaunchAgents/ai.openclaw.gateway.plist — add under EnvironmentVariables:
-# <key>GEMINI_API_KEY</key><string>your-key</string>
-# <key>GH_TOKEN</key><string>your-token</string>
-# <key>TAVILY_API_KEY</key><string>your-key</string>
-# <key>TWITTERAPI_IO_KEY</key><string>your-key</string>
-
-launchctl kickstart -k gui/$(id -u)/ai.openclaw.gateway
-```
-
-Or export in your shell for testing:
-
-```bash
-export GEMINI_API_KEY="your-key"
-export GH_TOKEN="your-token"
-export TAVILY_API_KEY="your-key"
-export TWITTERAPI_IO_KEY="your-key"
+# ~/.openclaw/workspace/.env
+GEMINI_API_KEY=your-key
+GH_TOKEN=your-token
+TAVILY_API_KEY=your-key
+TWITTERAPI_IO_KEY=your-key
 
 # LLM editor tuning (optional)
-export MIN_SCORE_THRESHOLD=60      # Filter articles below this score (default: 60)
-export SECTION_MAX_ITEMS=40        # Max articles per section (default: 40)
-export LLM_BATCH_SIZE=30           # LLM batch size (default: 30)
+MIN_SCORE_THRESHOLD=60      # Filter articles below this score (default: 60)
+SECTION_MAX_ITEMS=40        # Max articles per section (default: 40)
+LLM_BATCH_SIZE=30           # LLM batch size (default: 30)
 
 # Output settings (optional)
-export NEWSROOM_OUTPUT_DIR="$HOME/.openclaw/workspace/outputs"
-export NEWSROOM_TZ="Asia/Shanghai"  # Timezone for output file timestamps
-export NEWSROOM_HTML_ENABLED=1      # Generate HTML report (default: 1)
+NEWSROOM_OUTPUT_DIR=/Users/you/.openclaw/workspace/outputs
+NEWSROOM_TZ=Asia/Shanghai   # Timezone for output file timestamps
+NEWSROOM_HTML_ENABLED=1     # Generate HTML report (default: 1)
 ```
+
+> `.env` is listed in `.gitignore` and will not be committed.
 
 **Default output files:**
 - Raw archive: `$NEWSROOM_OUTPUT_DIR/newsroom-run-YYYYMMDD-HHMMSS.md`

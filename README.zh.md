@@ -162,37 +162,29 @@ cp config/editorial_profile_template.md ~/.openclaw/workspace/memory/editorial_p
 
 ### 第四步：配置环境变量
 
-将 API 密钥写入 OpenClaw LaunchAgent plist（macOS）：
+**推荐方式：`.env` 文件**（手动执行和定时任务均生效）
+
+`news_scan_deduped.sh` 启动时会自动加载 `~/.openclaw/workspace/.env`，确保 cron 定时任务和交互式 shell 的环境变量完全一致，不再出现"手动跑成功、定时任务报错"的问题。
 
 ```bash
-# 编辑 ~/Library/LaunchAgents/ai.openclaw.gateway.plist
-# 在 EnvironmentVariables 下添加：
-# <key>GEMINI_API_KEY</key><string>your-key</string>
-# <key>GH_TOKEN</key><string>your-token</string>
-# <key>TAVILY_API_KEY</key><string>your-key</string>
-# <key>TWITTERAPI_IO_KEY</key><string>your-key</string>
-
-launchctl kickstart -k gui/$(id -u)/ai.openclaw.gateway
-```
-
-或在 Shell 中临时导出（适合测试）：
-
-```bash
-export GEMINI_API_KEY="your-key"
-export GH_TOKEN="your-token"
-export TAVILY_API_KEY="your-key"
-export TWITTERAPI_IO_KEY="your-key"
+# ~/.openclaw/workspace/.env
+GEMINI_API_KEY=your-key
+GH_TOKEN=your-token
+TAVILY_API_KEY=your-key
+TWITTERAPI_IO_KEY=your-key
 
 # LLM 编辑器参数（可选）
-export MIN_SCORE_THRESHOLD=60      # 文章最低分数阈值（默认 60）
-export SECTION_MAX_ITEMS=40        # 每个板块最多文章数（默认 40）
-export LLM_BATCH_SIZE=30           # LLM 批次大小（默认 30）
+MIN_SCORE_THRESHOLD=60      # 文章最低分数阈值（默认 60）
+SECTION_MAX_ITEMS=40        # 每个板块最多文章数（默认 40）
+LLM_BATCH_SIZE=30           # LLM 批次大小（默认 30）
 
 # 输出文件设置（可选）
-export NEWSROOM_OUTPUT_DIR="$HOME/.openclaw/workspace/outputs"
-export NEWSROOM_TZ="Asia/Shanghai"  # 输出文件时间戳使用的时区
-export NEWSROOM_HTML_ENABLED=1      # 是否生成 HTML 报告（默认 1）
+NEWSROOM_OUTPUT_DIR=/Users/you/.openclaw/workspace/outputs
+NEWSROOM_TZ=Asia/Shanghai   # 输出文件时间戳使用的时区
+NEWSROOM_HTML_ENABLED=1     # 是否生成 HTML 报告（默认 1）
 ```
+
+> `.env` 已写入 `.gitignore`，不会被提交到代码仓库。
 
 **默认输出文件：**
 - 原始归档：`$NEWSROOM_OUTPUT_DIR/newsroom-run-YYYYMMDD-HHMMSS.md`

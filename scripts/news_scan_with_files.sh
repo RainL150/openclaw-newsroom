@@ -5,6 +5,12 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# 显式加载 .env（保证 cron / 非交互 shell 下也能获取环境变量）
+set -a
+[ -f "$SCRIPT_DIR/../.env" ] && source "$SCRIPT_DIR/../.env"
+set +a
+
 OUTPUT_DIR="${NEWSROOM_OUTPUT_DIR:-$SCRIPT_DIR/../outputs}"
 RUN_TIMESTAMP="${NEWSROOM_RUN_TIMESTAMP:-$(TZ="${NEWSROOM_TZ:-Asia/Shanghai}" date '+%Y%m%d-%H%M%S')}"
 RAW_MD_OUTPUT="${NEWSROOM_RUN_MD_OUTPUT:-$OUTPUT_DIR/newsroom-run-${RUN_TIMESTAMP}.md}"
