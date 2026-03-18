@@ -38,6 +38,9 @@ MEMORY = WORKSPACE / "memory"
 EDITORIAL_PROFILE = MEMORY / "editorial_profile.md"
 SCANNER_PRESENTED = MEMORY / "scanner_presented.md"
 NEWS_LOG = MEMORY / "news_log.md"
+# 若由 Shell 传入，则先写 pending 文件，Shell 最后 commit；避免任务失败后文章被误判为"已呈现"
+_pending_env = os.environ.get("NEWSROOM_PRESENTED_PENDING", "").strip()
+SCANNER_PRESENTED_PENDING = Path(_pending_env) if _pending_env else None
 
 # ── Configuration ────────────────────────────────────────────────────
 LLM_PROVIDER = os.environ.get("LLM_PROVIDER", "auto").lower()  # auto|gemini|openrouter
@@ -1019,20 +1022,25 @@ def log_to_scanner_presented(picks):
     today_header = f"## {today}"
     ts = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
+    # 优先写 pending 文件（由 Shell 在任务完成后 commit），防止任务中途失败导致文章被误判为已呈现
+    target = SCANNER_PRESENTED_PENDING if SCANNER_PRESENTED_PENDING else SCANNER_PRESENTED
+
     try:
         existing = ""
-        if SCANNER_PRESENTED.exists():
+        if target == SCANNER_PRESENTED and SCANNER_PRESENTED.exists():
             existing = SCANNER_PRESENTED.read_text()
 
-        with open(SCANNER_PRESENTED, "a") as f:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with open(target, "a") as f:
             if today_header not in existing:
                 f.write(f"\n{today_header}\n\n")
             for pick in picks:
                 f.write(f"[{ts}] {pick['title']} | {pick['url']}\n")
 
-        log(f"Logged {len(picks)} picks to scanner_presented.md")
+        label = "pending" if SCANNER_PRESENTED_PENDING else "scanner_presented.md"
+        log(f"Logged {len(picks)} picks to {label}")
     except Exception as e:
-        log(f"Warning: could not log to scanner_presented.md: {e}")
+        log(f"Warning: could not log to scanner_presented: {e}")
 
 
 def main():

@@ -32,8 +32,12 @@ set +a
 OUTPUT_DIR="${NEWSROOM_OUTPUT_DIR:-$SCRIPT_DIR/../outputs}"
 RUN_TIMESTAMP="${NEWSROOM_RUN_TIMESTAMP:-$(TZ="${NEWSROOM_TZ:-Asia/Shanghai}" date '+%Y%m%d-%H%M%S')}"
 RUN_MD_OUTPUT="${NEWSROOM_RUN_MD_OUTPUT:-$OUTPUT_DIR/newsroom-run-${RUN_TIMESTAMP}.md}"
+MEMORY_DIR="${NEWSROOM_MEMORY_DIR:-$SCRIPT_DIR/../memory}"
+SCANNER_PRESENTED="$MEMORY_DIR/scanner_presented.md"
+# pending 文件：llm_editor.py 写这里，任务成功后再 commit 到 scanner_presented.md
+export NEWSROOM_PRESENTED_PENDING="$MEMORY_DIR/scanner_presented_pending_${RUN_TIMESTAMP}.md"
 
-mkdir -p "$OUTPUT_DIR"
+mkdir -p "$OUTPUT_DIR" "$MEMORY_DIR"
 
 # 将原始终端输出同时写入带时间戳的归档文件
 exec > >(tee "$RUN_MD_OUTPUT")
@@ -550,5 +554,15 @@ echo "Sources: $RSS_COUNT RSS + $REDDIT_COUNT Reddit + $((TWITTER_COUNT + TWITTE
 echo "Pipeline: $TOTAL_CANDIDATES raw -> ${SCORED_COUNT:-N/A} scored -> $PICKS_COUNT curated picks"
 echo "═══════════════════════════════════════════════════════════"
 echo "原始输出归档：file://$RUN_MD_OUTPUT"
+
+# Commit pending presented log
+# 双重条件：① LLM 整体成功（LLM_SUCCESS=true） ② pending 文件存在
+# 任一不满足均不 commit —— LLM 失败/半写入/脚本中途退出时，下次重试均可重新获取相同文章
+if [ "${LLM_SUCCESS:-false}" = "true" ] && [ -f "$NEWSROOM_PRESENTED_PENDING" ]; then
+  cat "$NEWSROOM_PRESENTED_PENDING" >> "$SCANNER_PRESENTED"
+  rm -f "$NEWSROOM_PRESENTED_PENDING"
+else
+  rm -f "$NEWSROOM_PRESENTED_PENDING" 2>/dev/null || true  # 清理残留 pending（LLM 失败时）
+fi
 
 rm -f "$PICKS_FILE"
