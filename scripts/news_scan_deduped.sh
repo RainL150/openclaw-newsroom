@@ -182,10 +182,10 @@ echo ""
 echo "[3/5] Scanning X/Twitter..."
 
 # 3a: bird CLI (primary — account-based)
-if run_timeout 90s "$SCRIPT_DIR/scan_twitter_ai.sh" > "$TWITTER_RAW" 2>/tmp/bird_scan.log; then
+if run_timeout 90s "$SCRIPT_DIR/scan_twitter_ai.sh" > "$TWITTER_RAW" 2>/dev/null; then
   echo "  bird CLI scan completed"
 else
-  echo "  Warning: bird CLI scan timed out or failed (see /tmp/bird_scan.log)"
+  echo "  Warning: bird CLI scan timed out or failed"
 fi
 
 if [ -s "$TWITTER_RAW" ]; then
