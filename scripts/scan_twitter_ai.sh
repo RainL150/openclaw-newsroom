@@ -21,19 +21,58 @@ run_timeout() {
   if [ -n "$TIMEOUT_CMD" ]; then "$TIMEOUT_CMD" "$_dur" "$@"; else "$@"; fi
 }
 
-# Auth check: bird reads AUTH_TOKEN and CT0 from env vars automatically.
-# If not in env (e.g., SSH session), fall back to Chrome cookies.
+# Auth helper: run setup_bird_auth.sh and re-source .env
+SETUP_SCRIPT="$SCRIPT_DIR/setup_bird_auth.sh"
+_try_refresh_auth() {
+  if [ ! -f "$SETUP_SCRIPT" ]; then
+    echo "  setup_bird_auth.sh not found — cannot refresh." >&2
+    return 1
+  fi
+  echo "  Running setup_bird_auth.sh to refresh tokens..." >&2
+  if bash "$SETUP_SCRIPT" >&2; then
+    set -a
+    [ -f "$SCRIPT_DIR/../.env" ] && source "$SCRIPT_DIR/../.env"
+    set +a
+    return 0
+  fi
+  return 1
+}
+
+# Auth check: prefer AUTH_TOKEN/CT0 env vars (no keychain prompts).
 if [ -z "$AUTH_TOKEN" ] || [ -z "$CT0" ]; then
-  if [ -d "$HOME/Library/Application Support/Google/Chrome" ]; then
-    BIRD_EXTRA="--cookie-source chrome"
+  if [ -t 0 ]; then
+    # Interactive terminal — ask user once
+    echo "" >&2
+    echo "Twitter: AUTH_TOKEN/CT0 未配置。" >&2
+    printf "  现在运行 setup_bird_auth.sh 自动获取? [y/N] " >&2
+    read -r _ans </dev/tty
+    if [[ "$_ans" =~ ^[Yy]$ ]]; then
+      _try_refresh_auth || { echo "  配置失败 — 跳过 Twitter。" >&2; exit 0; }
+    else
+      echo "  跳过 Twitter 扫描。" >&2
+      exit 0
+    fi
   else
-    echo "Warning: No X auth available (no AUTH_TOKEN/CT0 env vars, no Chrome cookies)"
-    echo "Twitter scan skipped."
+    echo "Warning: AUTH_TOKEN/CT0 not set — Twitter scan skipped." >&2
+    echo "  Run once: bash scripts/setup_bird_auth.sh" >&2
     exit 0
   fi
-else
-  BIRD_EXTRA=""
 fi
+
+BIRD_EXTRA=""
+
+# Auth probe: detect expired/invalid tokens before full scan (saves time on 38 calls)
+_PROBE=$(run_timeout 8s $BIRD search "from:OpenAI" -n 1 --plain 2>&1 || true)
+if echo "$_PROBE" | grep -qiE "unauthorized|401|auth|login required|invalid|expired|forbidden"; then
+  echo "  Twitter token 已失效 — 尝试自动刷新..." >&2
+  if _try_refresh_auth; then
+    echo "  Token 已刷新，继续扫描。" >&2
+  else
+    echo "  刷新失败 — 跳过 Twitter 扫描。" >&2
+    exit 0
+  fi
+fi
+unset _PROBE
 
 echo "Scanning X/Twitter for AI news..."
 

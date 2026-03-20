@@ -98,6 +98,7 @@ OpenClaw Gateway
 
 ### Optional Tools
 - **bird** — Twitter/X CLI for `scan_twitter_ai.sh`. Install: `npm install -g @steipete/bird` or `brew install steipete/tap/bird`. If not installed, the Twitter bird CLI source is gracefully skipped.
+- **setup_bird_auth.sh** — One-time helper that reads your Chrome cookies to extract Twitter `AUTH_TOKEN`/`CT0` and writes them to `.env`. Avoids repeated macOS keychain prompts. Run once: `bash scripts/setup_bird_auth.sh`.
 
 ---
 
@@ -163,6 +164,10 @@ GEMINI_API_KEY=your-key
 GH_TOKEN=your-token
 TAVILY_API_KEY=your-key
 TWITTERAPI_IO_KEY=your-key
+
+# Twitter/X auth for bird CLI (set automatically by setup_bird_auth.sh)
+AUTH_TOKEN=your-auth-token
+CT0=your-ct0-token
 
 # LLM editor tuning (optional)
 MIN_SCORE_THRESHOLD=60      # Filter articles below this score (default: 60)
@@ -250,6 +255,7 @@ Expected output:
 | `filter_ai_news.sh` | RSS keyword filter with word-boundary matching; assigns source tiers |
 | `fetch_reddit_news.py` | Reddit public JSON API; 13 subs, score thresholds, flair filtering, 3 concurrent workers |
 | `scan_twitter_ai.sh` | bird CLI; 3-tier account system (official accounts, reporters, CEOs) |
+| `setup_bird_auth.sh` | One-time helper: reads Chrome cookies to extract Twitter tokens into `.env` (avoids macOS keychain prompts) |
 | `fetch_twitter_api.py` | twitterapi.io keyword search; engagement filtering (50+ likes or 5000+ followers) |
 | `github_trending.py` | GitHub emerging repos (7d, 50+ stars), velocity tracking, releases from 16 key AI repos |
 | `fetch_web_news.py` | Tavily web search; 5 queries, 2-day freshness, skips RSS-covered domains |
@@ -272,6 +278,7 @@ openclaw-newsroom/
 │   ├── filter_ai_news.sh
 │   ├── fetch_reddit_news.py
 │   ├── scan_twitter_ai.sh
+│   ├── setup_bird_auth.sh
 │   ├── fetch_twitter_api.py
 │   ├── github_trending.py
 │   ├── fetch_web_news.py
@@ -343,6 +350,8 @@ Typical run: ~100 raw articles → hundreds scored candidates → 4-section LLM 
 | Reddit 429 (rate limit) | Normal with short intervals — reduce subreddits or increase `--hours` |
 | Reddit 404 on a sub | Sub is private/quarantined — remove from config |
 | `bird` CLI not found | Install bird or remove `scan_twitter_ai.sh` from orchestrator |
+| macOS keychain prompts on every scan | Run `bash scripts/setup_bird_auth.sh` once to cache tokens in `.env` |
+| Twitter returns 0 tweets (token expired) | Re-run `bash scripts/setup_bird_auth.sh` to refresh tokens |
 | No new stories found | RSS feeds are up to date — wait for new articles |
 | LLM editor timeout | Increase `TIMEOUT_SEC` in `llm_editor.py` |
 | Pipeline too slow | Increase cron timeout: `openclaw cron edit <id> --timeout 120` |
