@@ -6,7 +6,13 @@
 
 set -e
 
-BIRD="/usr/local/bin/bird"
+# Auto-detect bird binary (supports npm global, Homebrew Intel/ARM, custom PATH)
+BIRD="$(command -v bird 2>/dev/null || true)"
+if [ -z "$BIRD" ]; then
+  echo "Warning: bird CLI not found in PATH. Twitter bird scan skipped."
+  echo "Install: npm install -g @steipete/bird  OR  brew install steipete/tap/bird"
+  exit 0
+fi
 
 # Auto-detect timeout command (macOS ARM: gtimeout from coreutils; Linux: timeout)
 TIMEOUT_CMD="$(command -v gtimeout 2>/dev/null || command -v timeout 2>/dev/null || true)"
