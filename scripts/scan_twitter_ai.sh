@@ -8,6 +8,13 @@ set -e
 
 BIRD="/usr/local/bin/bird"
 
+# Auto-detect timeout command (macOS ARM: gtimeout from coreutils; Linux: timeout)
+TIMEOUT_CMD="$(command -v gtimeout 2>/dev/null || command -v timeout 2>/dev/null || true)"
+run_timeout() {
+  local _dur="$1"; shift
+  if [ -n "$TIMEOUT_CMD" ]; then "$TIMEOUT_CMD" "$_dur" "$@"; else "$@"; fi
+}
+
 # Auth check: bird reads AUTH_TOKEN and CT0 from env vars automatically.
 # If not in env (e.g., SSH session), fall back to Chrome cookies.
 if [ -z "$AUTH_TOKEN" ] || [ -z "$CT0" ]; then
@@ -76,25 +83,25 @@ CEO_ACCOUNTS=(
 
 echo "Scanning official accounts..."
 for acct in "${OFFICIAL_ACCOUNTS[@]}"; do
-  timeout 8s $BIRD $BIRD_EXTRA search "from:$acct" -n 3 --plain 2>/dev/null | head -20 || true
+  run_timeout 8s $BIRD $BIRD_EXTRA search "from:$acct" -n 3 --plain 2>/dev/null | head -20 || true
 done
 
 echo ""
 echo "Scanning reporters & leakers..."
 for acct in "${REPORTER_ACCOUNTS[@]}"; do
-  timeout 8s $BIRD $BIRD_EXTRA search "from:$acct" -n 3 --plain 2>/dev/null | head -20 || true
+  run_timeout 8s $BIRD $BIRD_EXTRA search "from:$acct" -n 3 --plain 2>/dev/null | head -20 || true
 done
 
 echo ""
 echo "Breaking AI news search..."
-timeout 10s $BIRD $BIRD_EXTRA search just launched OR now available OR rolling out OR just released AI model -filter:replies -filter:retweets -n 8 --plain 2>/dev/null | head -40 || true
+run_timeout 10s $BIRD $BIRD_EXTRA search just launched OR now available OR rolling out OR just released AI model -filter:replies -filter:retweets -n 8 --plain 2>/dev/null | head -40 || true
 
 echo ""
 echo "Product launches & announcements..."
-timeout 10s $BIRD $BIRD_EXTRA search introducing OR announcing AI OR LLM OR model -filter:replies -filter:retweets -n 8 --plain 2>/dev/null | head -40 || true
+run_timeout 10s $BIRD $BIRD_EXTRA search introducing OR announcing AI OR LLM OR model -filter:replies -filter:retweets -n 8 --plain 2>/dev/null | head -40 || true
 
 echo ""
 echo "CEO signals (context only)..."
 for acct in "${CEO_ACCOUNTS[@]}"; do
-  timeout 8s $BIRD $BIRD_EXTRA search "from:$acct" -n 2 --plain 2>/dev/null | head -15 || true
+  run_timeout 8s $BIRD $BIRD_EXTRA search "from:$acct" -n 2 --plain 2>/dev/null | head -15 || true
 done

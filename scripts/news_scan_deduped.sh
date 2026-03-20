@@ -29,6 +29,18 @@ set -a
 [ -f "$SCRIPT_DIR/../.env" ] && source "$SCRIPT_DIR/../.env"
 set +a
 
+# Auto-detect external tools (macOS ARM: gtimeout from coreutils; Intel/Linux: timeout)
+TIMEOUT_CMD="$(command -v gtimeout 2>/dev/null || command -v timeout 2>/dev/null || true)"
+[ -z "$TIMEOUT_CMD" ] && echo "Warning: timeout/gtimeout not found — install: brew install coreutils. Running without timeouts."
+run_timeout() {
+  local _dur="$1"; shift
+  if [ -n "$TIMEOUT_CMD" ]; then "$TIMEOUT_CMD" "$_dur" "$@"; else "$@"; fi
+}
+
+BLOGWATCHER="$(command -v blogwatcher 2>/dev/null || true)"
+[ -z "$BLOGWATCHER" ] && echo "Warning: blogwatcher not found — RSS scan will be skipped."
+export BLOGWATCHER
+
 OUTPUT_DIR="${NEWSROOM_OUTPUT_DIR:-$SCRIPT_DIR/../outputs}"
 RUN_TIMESTAMP="${NEWSROOM_RUN_TIMESTAMP:-$(TZ="${NEWSROOM_TZ:-Asia/Shanghai}" date '+%Y%m%d-%H%M%S')}"
 RUN_MD_OUTPUT="${NEWSROOM_RUN_MD_OUTPUT:-$OUTPUT_DIR/newsroom-run-${RUN_TIMESTAMP}.md}"
@@ -98,7 +110,7 @@ echo ""
 # ═════════════════════════════════════════════════════════════════════
 echo "[1/5] Scanning RSS feeds..."
 
-/usr/local/bin/timeout 90s /usr/local/bin/blogwatcher scan > /dev/null 2>&1 || echo "  Warning: RSS scan timed out (continuing)"
+[ -n "$BLOGWATCHER" ] && run_timeout 90s "$BLOGWATCHER" scan > /dev/null 2>&1 || echo "  Warning: RSS scan timed out or skipped (continuing)"
 
 python3 -c '
 import sys, subprocess, re
@@ -106,8 +118,9 @@ import sys, subprocess, re
 outpath = sys.argv[1]
 
 try:
+    _bw = os.environ.get("BLOGWATCHER", "") or "blogwatcher"
     result = subprocess.run(
-        ["/usr/local/bin/blogwatcher", "articles"],
+        [_bw, "articles"],
         capture_output=True, text=True, timeout=30
     )
     raw = result.stdout
@@ -153,7 +166,7 @@ echo "     Found $RSS_COUNT articles from RSS feeds"
 echo ""
 echo "[2/5] Scanning Reddit (JSON API)..."
 
-if /usr/local/bin/timeout 60s python3 "$SCRIPT_DIR/fetch_reddit_news.py" --hours 24 > "$REDDIT_FILE" 2>/dev/null; then
+if run_timeout 60s python3 "$SCRIPT_DIR/fetch_reddit_news.py" --hours 24 > "$REDDIT_FILE" 2>/dev/null; then
   REDDIT_COUNT=$(wc -l < "$REDDIT_FILE" | tr -d ' ')
   echo "  Found $REDDIT_COUNT Reddit posts (score-filtered)"
   cat "$REDDIT_FILE" >> "$ARTICLES_FILE"
@@ -169,7 +182,7 @@ echo ""
 echo "[3/5] Scanning X/Twitter..."
 
 # 3a: bird CLI (primary — account-based)
-if /usr/local/bin/timeout 90s "$SCRIPT_DIR/scan_twitter_ai.sh" > "$TWITTER_RAW" 2>&1; then
+if run_timeout 90s "$SCRIPT_DIR/scan_twitter_ai.sh" > "$TWITTER_RAW" 2>&1; then
   echo "  bird CLI scan completed"
 else
   echo "  Warning: bird CLI scan timed out or failed (continuing)"
@@ -219,7 +232,7 @@ else
 fi
 
 # 3b: twitterapi.io (supplement — keyword search)
-if /usr/local/bin/timeout 30s python3 "$SCRIPT_DIR/fetch_twitter_api.py" --max-queries 2 > "$TWITTER_API_FILE" 2>/dev/null; then
+if run_timeout 30s python3 "$SCRIPT_DIR/fetch_twitter_api.py" --max-queries 2 > "$TWITTER_API_FILE" 2>/dev/null; then
   TWITTER_API_COUNT=$(wc -l < "$TWITTER_API_FILE" | tr -d ' ')
   echo "     twitterapi.io: $TWITTER_API_COUNT tweets"
   cat "$TWITTER_API_FILE" >> "$ARTICLES_FILE"
@@ -234,7 +247,7 @@ fi
 echo ""
 echo "[4/5] Scanning GitHub trending + releases..."
 
-if /usr/local/bin/timeout 45s python3 "$SCRIPT_DIR/github_trending.py" > "$GITHUB_FILE" 2>/dev/null; then
+if run_timeout 45s python3 "$SCRIPT_DIR/github_trending.py" > "$GITHUB_FILE" 2>/dev/null; then
   GITHUB_COUNT=$(wc -l < "$GITHUB_FILE" | tr -d ' ')
   echo "  Found $GITHUB_COUNT trending/release repos"
 else
@@ -248,7 +261,7 @@ fi
 echo ""
 echo "[5/5] Tavily web search..."
 
-if /usr/local/bin/timeout 30s python3 "$SCRIPT_DIR/fetch_web_news.py" --max-queries 3 --max-results 5 > "$TAVILY_FILE" 2>/dev/null; then
+if run_timeout 30s python3 "$SCRIPT_DIR/fetch_web_news.py" --max-queries 3 --max-results 5 > "$TAVILY_FILE" 2>/dev/null; then
   TAVILY_COUNT=$(wc -l < "$TAVILY_FILE" | tr -d ' ')
   echo "  Found $TAVILY_COUNT web articles"
   cat "$TAVILY_FILE" >> "$ARTICLES_FILE"
@@ -280,7 +293,7 @@ echo ""
 echo "Enriching top articles with full text..."
 
 if [ "$SCORED_COUNT" -gt 0 ]; then
-  if /usr/local/bin/timeout 60s python3 "$SCRIPT_DIR/enrich_top_articles.py" --input "$SCORED_FILE" --max 500 --max-chars 1200 > "$ENRICHED_FILE" 2>/dev/null; then
+  if run_timeout 60s python3 "$SCRIPT_DIR/enrich_top_articles.py" --input "$SCORED_FILE" --max 500 --max-chars 1200 > "$ENRICHED_FILE" 2>/dev/null; then
     echo "  Enrichment complete"
   else
     echo "  Warning: Enrichment failed (using scored articles without full text)"
@@ -544,7 +557,7 @@ fi
 # CLEANUP: Mark articles as read in blogwatcher
 # ═════════════════════════════════════════════════════════════════════
 echo "Marking RSS articles as read..."
-echo "y" | /usr/local/bin/blogwatcher read-all > /dev/null 2>&1 || echo "  Warning: Could not mark articles as read"
+[ -n "$BLOGWATCHER" ] && echo "y" | "$BLOGWATCHER" read-all > /dev/null 2>&1 || true
 
 # ═════════════════════════════════════════════════════════════════════
 # STATS

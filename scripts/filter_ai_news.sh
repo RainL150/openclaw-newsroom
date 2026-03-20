@@ -5,10 +5,11 @@
 # Requires: blogwatcher CLI
 
 python3 << 'PYEOF'
-import subprocess, sys, re
+import os, subprocess, sys, re
 
+_bw = os.environ.get("BLOGWATCHER", "") or "blogwatcher"
 result = subprocess.run(
-    ['/usr/local/bin/blogwatcher', 'articles'],
+    [_bw, 'articles'],
     capture_output=True, text=True, timeout=90
 )
 raw = result.stdout
