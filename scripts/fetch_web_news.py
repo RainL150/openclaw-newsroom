@@ -35,6 +35,8 @@ SEARCH_QUERIES = [
     "AI acquisition merger funding billion",
     "AI model release launch new",
     "AI regulation government policy",
+    "AI agent autonomous agent framework release launch",
+    "LangGraph LangChain AutoGen CrewAI LlamaIndex OpenAI Agents SDK update",
 ]
 
 # Domains to skip (already covered by RSS feeds)

@@ -32,8 +32,10 @@ OFFICIAL_ACCOUNTS=(
   "Google"
   "HuggingFace"
   "MetaAI"
+  "AIatMeta"
   "MistralAI"
   "DeepMind"
+  "GoogleDeepMind"
   "xAI"
   "NVIDIAAIDev"
   "Apple"
@@ -52,6 +54,10 @@ REPORTER_ACCOUNTS=(
   "inafried"
   "_philschmid"
   "rohanpaul_ai"
+  "benthompson"
+  "natolambert"
+  "lennysan"
+  "Suhail"
 )
 
 # Tier 3: CEO/thought leader accounts (context, not breaking)
@@ -60,7 +66,12 @@ CEO_ACCOUNTS=(
   "darioamodei"
   "ylecun"
   "karpathy"
+  "AndrewYNg"
+  "fchollet"
+  "goodfellow_ian"
+  "demishassabis"
   "elonmusk"
+  "satyanadella"
 )
 
 echo "Scanning official accounts..."

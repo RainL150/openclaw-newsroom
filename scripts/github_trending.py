@@ -39,7 +39,7 @@ if _gh_token:
 REQUEST_TIMEOUT = 30
 
 # Topics to scan (each generates a separate API call)
-TOPICS = ["ai", "llm", "agents", "generative-ai", "large-language-model"]
+TOPICS = ["ai", "llm", "agents", "generative-ai", "large-language-model", "ai-agent", "multi-agent"]
 
 EMERGING_WINDOW_DAYS = 7
 EMERGING_MIN_STARS = 50
@@ -172,7 +172,7 @@ def scan_velocity(state):
     old_repos = state.get("repos", {})
     new_repos = {}
     results = []
-    velocity_topics = ["ai", "llm", "large-language-model"]
+    velocity_topics = ["ai", "llm", "large-language-model", "agents", "ai-agent"]
 
     for topic in velocity_topics:
         if _rate_limited:
