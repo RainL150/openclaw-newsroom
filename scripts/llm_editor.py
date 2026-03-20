@@ -132,9 +132,6 @@ def filter_already_posted(articles):
     appears in news_log.md or scanner_presented.md.
     """
     full_log = load_file_safe(NEWS_LOG)
-    if not full_log:
-        return articles
-
     presented_log = load_file_safe(SCANNER_PRESENTED)
 
     url_pattern = re.compile(r'https?://[^\s|>\]\)"\']+')
