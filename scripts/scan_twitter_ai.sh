@@ -6,7 +6,13 @@
 
 set -e
 
-BIRD="/usr/local/bin/bird"
+# Auto-detect bird binary (supports npm global, Homebrew Intel/ARM, custom PATH)
+BIRD="$(command -v bird 2>/dev/null || true)"
+if [ -z "$BIRD" ]; then
+  echo "Warning: bird CLI not found in PATH. Twitter bird scan skipped."
+  echo "Install: npm install -g @steipete/bird  OR  brew install steipete/tap/bird"
+  exit 0
+fi
 
 # Auth check: bird reads AUTH_TOKEN and CT0 from env vars automatically.
 # If not in env (e.g., SSH session), fall back to Chrome cookies.
