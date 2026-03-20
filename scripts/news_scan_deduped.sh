@@ -195,6 +195,7 @@ import sys, re
 twitter_file = sys.argv[1]
 articles_file = sys.argv[2]
 count = 0
+current_handle = ""
 
 with open(twitter_file, "r") as f:
     lines = f.readlines()
@@ -204,7 +205,18 @@ with open(articles_file, "a") as out:
         line = line.strip()
         if not line:
             continue
+        # Skip section headers and separator lines
         if line.startswith(("===", "---", "Scanning", "Tier", "Breaking", "Product", "CEO")):
+            continue
+        if line.startswith("\u2500"):  # ─ separator
+            continue
+        # Detect account header: @username (DisplayName):
+        m = re.match(r"^@(\w+)\s+\(.+\):", line)
+        if m:
+            current_handle = "@" + m.group(1)
+            continue
+        # Skip metadata lines
+        if re.match(r"^(date|VIDEO|PHOTO|url):", line):
             continue
         text = line.replace("|", " -")
         urls = re.findall(r"(https?://\S+)", line)
@@ -217,11 +229,11 @@ with open(articles_file, "a") as out:
             else:
                 if not external_url:
                     external_url = u
+        source = f"X/Twitter ({current_handle})" if current_handle else "X/Twitter (tweet)"
         if external_url:
-            out.write(f"{text}|{external_url}|X/Twitter\n")
-        else:
-            url = tweet_url
-            out.write(f"{text}|{url}|X/Twitter (tweet)\n")
+            out.write(f"{text}|{external_url}|{source}\n")
+        elif tweet_url:
+            out.write(f"{text}|{tweet_url}|{source}\n")
         count += 1
 
 print(count)
