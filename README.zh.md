@@ -99,8 +99,7 @@ OpenClaw Gateway
 
 ### 可选工具
 
-- **bird** —— Twitter/X 命令行工具，供 `scan_twitter_ai.sh` 使用。安装：`npm install -g @steipete/bird` 或 `brew install steipete/tap/bird`。若未安装，Twitter bird CLI 数据源会被自动跳过，不影响其他来源。
-- **setup_bird_auth.sh** —— 一次性辅助脚本，从 Chrome 读取 Twitter Cookie 并写入 `.env`，彻底避免 macOS 钥匙串弹窗。执行一次即可：`bash scripts/setup_bird_auth.sh`。
+- **bird** —— Twitter/X 命令行工具，供 `scan_twitter_ai.sh` 使用。安装：`npm install -g @steipete/bird` 或 `brew install steipete/tap/bird`。若未安装，Twitter bird CLI 数据源会被自动跳过，不影响其他来源。bird 会自动读取 Chrome cookies 完成认证，无需额外配置。
 
 ---
 
@@ -173,10 +172,6 @@ GEMINI_API_KEY=your-key
 GH_TOKEN=your-token
 TAVILY_API_KEY=your-key
 TWITTERAPI_IO_KEY=your-key
-
-# Twitter/X bird CLI 认证（由 setup_bird_auth.sh 自动写入）
-AUTH_TOKEN=your-auth-token
-CT0=your-ct0-token
 
 # LLM 编辑器参数（可选）
 MIN_SCORE_THRESHOLD=60      # 文章最低分数阈值（默认 60）
@@ -277,8 +272,7 @@ HTML 报告示例效果见：[assets/newsroom-run-20260317-141349.html](assets/n
 | `news_scan_deduped.sh` | 主编排器 —— 依序调用所有来源，串联评分/富化/LLM 环节 |
 | `filter_ai_news.sh` | RSS 关键词过滤，含词边界匹配；分配来源等级 |
 | `fetch_reddit_news.py` | Reddit 公开 JSON API；13 个社区，分数阈值过滤，Flair 过滤，3 并发 |
-| `scan_twitter_ai.sh` | bird CLI；三级账号体系（官方账号、记者爆料人、CEO） |
-| `setup_bird_auth.sh` | 一次性辅助脚本：从 Chrome 提取 Twitter Token 写入 `.env`，避免 macOS 钥匙串反复弹窗 |
+| `scan_twitter_ai.sh` | bird CLI；三级账号体系（官方账号、记者爆料人、CEO）；bird 自动读取 Chrome cookies 认证 |
 | `fetch_twitter_api.py` | twitterapi.io 关键词搜索；互动量过滤（50+ 赞或 5000+ 粉丝） |
 | `github_trending.py` | GitHub 新兴仓库（7 天内、50+ Stars）、Star 增速追踪、16 个核心 AI 仓库的 Release 监控 |
 | `fetch_web_news.py` | Tavily 网络搜索；5 个查询、2 天新鲜度过滤、跳过 RSS 已覆盖的域名 |
@@ -302,7 +296,6 @@ openclaw-newsroom/
 │   ├── filter_ai_news.sh
 │   ├── fetch_reddit_news.py
 │   ├── scan_twitter_ai.sh
-│   ├── setup_bird_auth.sh
 │   ├── fetch_twitter_api.py
 │   ├── github_trending.py
 │   ├── fetch_web_news.py
@@ -377,8 +370,7 @@ Tavily（5 个查询）───────┘
 | Reddit 429（频率限制） | 正常现象，扫描间隔较短时会触发；减少社区数量或增大 `--hours` |
 | Reddit 404 某个社区 | 该社区已私有或被隔离，从配置中移除 |
 | `bird` CLI 找不到 | 安装 bird，或从主编排器中移除对 `scan_twitter_ai.sh` 的调用 |
-| macOS 钥匙串每次扫描都弹窗 | 执行一次 `bash scripts/setup_bird_auth.sh`，将 Token 缓存到 `.env` |
-| Twitter 返回 0 条（Token 过期） | 重新执行 `bash scripts/setup_bird_auth.sh` 刷新 Token |
+| Twitter 返回 0 条 | 确认 Chrome 中已登录 x.com；bird 自动读取 Chrome cookies，无需手动配置 token |
 | 没有新文章 | RSS 订阅源暂无更新，等待新文章发布 |
 | LLM 编辑器超时 | 增大 `llm_editor.py` 中的 `TIMEOUT_SEC` |
 | 流水线运行太慢 | 增大 Cron 超时：`openclaw cron edit <id> --timeout 120` |
