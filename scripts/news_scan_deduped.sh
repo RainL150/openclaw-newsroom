@@ -113,7 +113,7 @@ echo "[1/5] Scanning RSS feeds..."
 [ -n "$BLOGWATCHER" ] && run_timeout 90s "$BLOGWATCHER" scan > /dev/null 2>&1 || echo "  Warning: RSS scan timed out or skipped (continuing)"
 
 python3 -c '
-import sys, subprocess, re
+import os, sys, subprocess, re
 
 outpath = sys.argv[1]
 
