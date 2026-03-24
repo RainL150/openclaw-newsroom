@@ -10,6 +10,8 @@ last_scan_github.txt
 scanner_presented.md
 editorial_decisions.md
 news_log.md
+memory/
+outputs/
 
 # Environment / secrets
 .env
@@ -21,7 +23,11 @@ news_log.md
 # Temp files
 /tmp/
 *.log
+*.swp
+*.swo
 
 zhuqueContext
 
 .cursor
+.idea/
+.vscode/

@@ -1,0 +1,7 @@
+interface:
+  display_name: "OpenClaw Newsroom"
+  short_description: "Scan, dedupe, and curate AI news digests."
+  default_prompt: "Use $openclaw-newsroom to run or tune the AI newsroom pipeline and produce an archived digest."
+
+policy:
+  allow_implicit_invocation: true
