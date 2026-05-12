@@ -373,7 +373,10 @@ infile = Path(sys.argv[1])
 outfile = Path(sys.argv[2])
 max_items = int(sys.argv[3])
 
-def infer_section(title, source):
+def infer_section(title, source, url=""):
+    # GitHub 项目单独分类
+    if "github.com" in url.lower():
+        return "GitHub 项目（GitHub）"
     t = f"{title} {source}".lower()
     if any(k in t for k in ["model", "benchmark", "llm", "gpt", "claude", "llama", "推理", "训练", "权重"]):
         return "模型层面（Model）"
@@ -388,6 +391,7 @@ summary_map = {
     "应用层面（Application）": "一句话总趋势：AI 应用从演示型进入真实工作流闭环。\n关键词：\n- Agent工具化\n- 工作流自动化\n- 端侧落地\n最大主题：提升业务端到端效率\n核心问题：可靠执行与可观测性\n典型方向：\n- 多步骤任务编排\n- 人机协同界面优化",
     "基建层面（Infrastructure）": "一句话总趋势：基建重点从堆算力转向控成本与稳质量。\n关键词：\n- 智能路由\n- Token优化\n- 语义缓存\n最大主题：降低 LLM 总拥有成本\n核心问题：高并发下的性能与费用平衡\n典型方向：\n- 请求分层调度\n- Prompt外部化管理",
     "公司层面（Company/Industry）": "一句话总趋势：产业进入并购整合与生态卡位阶段。\n关键词：\n- 融资并购\n- 战略联盟\n- 行业分化\n最大主题：头部公司重塑价值链\n核心问题：规模扩张与利润模型\n典型方向：\n- 垂直整合\n- 出海与区域化布局",
+    "GitHub 项目（GitHub）": "一句话总趋势：开源生态持续活跃，AI 工具链快速迭代。\n关键词：\n- Agent 框架\n- 推理引擎\n- 开发工具\n最大主题：开源 AI 基础设施建设\n核心问题：项目质量与可维护性\n典型方向：\n- 新兴高星项目\n- 核心 SDK 更新",
 }
 
 rows = []
@@ -404,7 +408,7 @@ if infile.exists():
 out = []
 for i, (title, url, source) in enumerate(rows[:max_items], 1):
     story_type = "github" if "github.com" in url else ("twitter" if ("x.com/" in url or "twitter.com/" in url) else "rss")
-    section = infer_section(title, source)
+    section = infer_section(title, source, url)
     out.append({
         "rank": i,
         "title": title,
@@ -415,7 +419,7 @@ for i, (title, url, source) in enumerate(rows[:max_items], 1):
         "category": "other",
         "section": section,
         "score": max(1, 100 - i),
-        "section_summary": summary_map[section],
+        "section_summary": summary_map.get(section, ""),
     })
 
 with outfile.open('w', encoding='utf-8') as f:
@@ -465,6 +469,7 @@ SECTION_ORDER = [
     "应用层面（Application）",
     "基建层面（Infrastructure）",
     "公司层面（Company/Industry）",
+    "GitHub 项目（GitHub）",
 ]
 
 rows = []

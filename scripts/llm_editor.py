@@ -63,6 +63,7 @@ VALID_SECTIONS = {
     "应用层面（Application）",
     "基建层面（Infrastructure）",
     "公司层面（Company/Industry）",
+    "GitHub 项目（GitHub）",
 }
 VALID_CHANNELS = {"RSS", "Reddit", "X/Twitter", "GitHub", "Tavily"}
 SECTION_MAX_ITEMS = int(os.environ.get("SECTION_MAX_ITEMS", "40"))
@@ -495,10 +496,9 @@ def _infer_section(title, source, story_type):
     if any(k in text for k in company_keywords):
         return "公司层面（Company/Industry）"
 
-    # 4. 应用层面：产品、工具、Agent（默认兜底）
-    # GitHub 项目通常是应用层面
+    # 4. GitHub 项目单独分类
     if story_type == "github":
-        return "应用层面（Application）"
+        return "GitHub 项目（GitHub）"
 
     # 其他关键词
     app_keywords = [
@@ -575,6 +575,9 @@ def validate_picks(picks):
             entry["type"] = "rss"
         if entry["section"] not in VALID_SECTIONS:
             entry["section"] = _infer_section(entry["title"], entry["source"], entry["type"])
+        # GitHub 项目强制归入 GitHub 板块
+        if entry["type"] == "github":
+            entry["section"] = "GitHub 项目（GitHub）"
         if entry["channel"] not in VALID_CHANNELS:
             entry["channel"] = _infer_channel(entry["url"], entry["source"], entry["type"])
         try:

@@ -20,6 +20,7 @@ SECTION_ORDER = [
     "应用层面（Application）",
     "基建层面（Infrastructure）",
     "公司层面（Company/Industry）",
+    "GitHub 项目（GitHub）",
 ]
 
 
