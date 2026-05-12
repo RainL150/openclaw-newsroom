@@ -1,7 +1,13 @@
 interface:
   display_name: "OpenClaw Newsroom"
   short_description: "Scan, dedupe, and curate AI news digests."
-  default_prompt: "Use $openclaw-newsroom to run or tune the AI newsroom pipeline and produce an archived digest."
+  default_prompt: "Run or tune the AI newsroom pipeline and produce an archived digest."
+
+# 与 .env 中 NEWSROOM_ANALYSIS_EXECUTOR 对齐：llm_api | agent
+# agent 模式下读 NEWSROOM_AGENT_KIND（openclaw / claude_code / codex / ...）声明 agent
+# 助手应结合用户 .env 说明分析步骤由本机 API 还是 agent CLI Hook 执行
+analysis:
+  default_executor: llm_api
 
 policy:
   allow_implicit_invocation: true

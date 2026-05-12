@@ -128,5 +128,6 @@ openclaw cron add \
 
 - Source collection is best-effort.
 - Missing `blogwatcher`, `bird`, or optional API keys reduces coverage but should not stop the run.
+- Curation is dispatched by `scripts/dispatch_llm_editor.sh` using `NEWSROOM_ANALYSIS_EXECUTOR` (`llm_api` or `agent`); in `agent` mode `NEWSROOM_AGENT_KIND` (`openclaw` / `claude_code` / `codex` / ...) and `NEWSROOM_AGENT_HOOK` / `NEWSROOM_AGENT_CMD` select the wrapper. Legacy `openclaw_agent` / `claude_code` values still work. See `references/analysis_execution.zh.md` (Chinese) for details.
 - `llm_editor.py` may fail independently; if that happens, the pipeline can still succeed using a raw fallback.
 - The wrapper prints `file://` links for the archived Markdown and HTML artifacts when available.

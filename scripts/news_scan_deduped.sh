@@ -4,7 +4,7 @@
 # ═══════════════════════════════════════════════════════════════════
 #
 # Orchestrates six data sources and pipes them through quality scoring,
-# enrichment, and Gemini Flash (llm_editor.py) for AI-powered curation.
+# enrichment, and llm_editor.py (via dispatch_llm_editor.sh) for AI-powered curation.
 #
 # Flow:
 #   1. RSS via blogwatcher (25 feeds)
@@ -316,10 +316,10 @@ else
 fi
 
 # ═════════════════════════════════════════════════════════════════════
-# LLM EDITORIAL FILTER (Gemini Flash via llm_editor.py)
+# LLM EDITORIAL FILTER (llm_editor.py，分发方式见 NEWSROOM_ANALYSIS_EXECUTOR)
 # ═════════════════════════════════════════════════════════════════════
 echo ""
-echo "Running LLM editorial filter (Gemini Flash)..."
+echo "Running LLM editorial filter (executor=${NEWSROOM_ANALYSIS_EXECUTOR:-llm_api}${NEWSROOM_AGENT_KIND:+ kind=$NEWSROOM_AGENT_KIND})..."
 
 TOTAL_CANDIDATES=$((TOTAL_RAW + GITHUB_COUNT))
 echo "   Pipeline: ${TOTAL_RAW} raw -> ${SCORED_COUNT:-$TOTAL_RAW} scored -> LLM"
@@ -330,9 +330,13 @@ if [ "$TOTAL_CANDIDATES" -eq 0 ]; then
   exit 0
 fi
 
-LLM_CMD="python3 $SCRIPT_DIR/llm_editor.py --file $ENRICHED_FILE"
+export NEWSROOM_SCRIPT_DIR="$SCRIPT_DIR"
+export NEWSROOM_ENRICHED_FILE="$ENRICHED_FILE"
+export NEWSROOM_GITHUB_FILE="$GITHUB_FILE"
+
+LLM_CMD="bash \"$SCRIPT_DIR/dispatch_llm_editor.sh\" --file \"$ENRICHED_FILE\""
 if [ -s "$GITHUB_FILE" ]; then
-  LLM_CMD="$LLM_CMD --github $GITHUB_FILE"
+  LLM_CMD="$LLM_CMD --github \"$GITHUB_FILE\""
 fi
 
 LLM_SUCCESS=true

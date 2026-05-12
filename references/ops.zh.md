@@ -128,5 +128,6 @@ openclaw cron add \
 
 - 各数据源按尽力而为执行。
 - 缺失 `blogwatcher`、`bird` 或可选 API key 会降低覆盖，但不应中止整次扫描。
+- 策编步骤由 `dispatch_llm_editor.sh` 分发，可通过 `NEWSROOM_ANALYSIS_EXECUTOR`（`llm_api` / `agent`）切换执行方式；`agent` 模式下用 `NEWSROOM_AGENT_KIND`（`openclaw` / `claude_code` / `codex` / ...）声明哪种 agent CLI，并配置 `NEWSROOM_AGENT_HOOK` 或 `NEWSROOM_AGENT_CMD`。旧的 `openclaw_agent` / `claude_code` 值与对应 `*_HOOK` / `*_CMD` 变量仍兼容。详见 `references/analysis_execution.zh.md`。
 - `llm_editor.py` 可以单独失败；此时流水线仍可能通过 raw fallback 完成。
 - 包装脚本会在可用时输出 Markdown 与 HTML 归档文件的 `file://` 路径。
