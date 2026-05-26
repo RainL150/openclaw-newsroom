@@ -30,20 +30,20 @@ Legacy values `openclaw_agent` and `claude_code` are still accepted and auto-map
 
 ## Default workflow
 
-1. Treat this folder as the skill root, normally at `~/.openclaw/workspace/skills/openclaw-newsroom/`.
+1. Use the "Base directory for this skill" path shown above as the working directory.
 2. Prefer the wrapper entrypoint when the user wants archived file paths:
 
 ```bash
-bash ~/.openclaw/workspace/skills/openclaw-newsroom/scripts/news_scan_with_files.sh
+bash scripts/news_scan_with_files.sh
 ```
 
 3. Use the raw pipeline entrypoint when only the digest text is needed:
 
 ```bash
-bash ~/.openclaw/workspace/skills/openclaw-newsroom/scripts/news_scan_deduped.sh
+bash scripts/news_scan_deduped.sh
 ```
 
-4. Expect outputs under `outputs/` and persistent state under `memory/` unless overridden by env vars.
+4. Expect outputs under `outputs/` and persistent state under `memory/` (relative to skill root) unless overridden by env vars.
 
 ## Before running
 
