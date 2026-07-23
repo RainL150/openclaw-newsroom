@@ -59,7 +59,13 @@ NEWSROOM_OUTPUT_DIR=/Users/you/.openclaw/workspace/skills/openclaw-newsroom/outp
 NEWSROOM_MEMORY_DIR=/Users/you/.openclaw/workspace/skills/openclaw-newsroom/memory
 NEWSROOM_TZ=Asia/Shanghai
 NEWSROOM_HTML_ENABLED=1
+NEWSROOM_LINK_CHECK_TIMEOUT=8
+NEWSROOM_LINK_CHECK_WORKERS=16
+NEWSROOM_TWITTER_SCAN_TIMEOUT=180s
 ```
+
+所有报告外链都会在编辑前统一规范化并检查，并在渲染前再次校验。短链和重定向会展开，
+跟踪参数会移除，不可访问或不安全的 URL 不会进入最终报告。
 
 至少要配置一条 LLM 通路：
 

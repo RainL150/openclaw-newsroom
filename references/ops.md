@@ -59,7 +59,14 @@ NEWSROOM_OUTPUT_DIR=/Users/you/.openclaw/workspace/skills/openclaw-newsroom/outp
 NEWSROOM_MEMORY_DIR=/Users/you/.openclaw/workspace/skills/openclaw-newsroom/memory
 NEWSROOM_TZ=Asia/Shanghai
 NEWSROOM_HTML_ENABLED=1
+NEWSROOM_LINK_CHECK_TIMEOUT=8
+NEWSROOM_LINK_CHECK_WORKERS=16
+NEWSROOM_TWITTER_SCAN_TIMEOUT=180s
 ```
+
+Every outbound report link is normalized and checked before curation, then
+checked again before rendering. Redirects and short links are expanded,
+tracking parameters are removed, and unreachable or unsafe URLs are excluded.
 
 At least one LLM path should be configured:
 

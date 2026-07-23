@@ -71,6 +71,7 @@ done
 
 # ── Temp files (cleaned up on exit) ─────────────────────────────────
 ARTICLES_FILE=$(mktemp /tmp/newscan_articles.XXXXXX)
+NORMALIZED_ARTICLES_FILE=$(mktemp /tmp/newscan_articles_valid.XXXXXX)
 REDDIT_FILE=$(mktemp /tmp/newscan_reddit.XXXXXX)
 TAVILY_FILE=$(mktemp /tmp/newscan_tavily.XXXXXX)
 TWITTER_API_FILE=$(mktemp /tmp/newscan_twitterapi.XXXXXX)
@@ -79,14 +80,20 @@ ENRICHED_FILE=$(mktemp /tmp/newscan_enriched.XXXXXX)
 PERSISTENT_CANDIDATES="$SCRIPT_DIR/../memory/last_scan_candidates.txt"
 PERSISTENT_GITHUB="$SCRIPT_DIR/../memory/last_scan_github.txt"
 GITHUB_FILE=$(mktemp /tmp/newscan_github.XXXXXX)
+NORMALIZED_GITHUB_FILE=$(mktemp /tmp/newscan_github_valid.XXXXXX)
 TWITTER_RAW=$(mktemp /tmp/newscan_twitter.XXXXXX)
+TWITTER_PARSED=$(mktemp /tmp/newscan_twitter_parsed.XXXXXX)
 PICKS_FILE=$(mktemp /tmp/newscan_picks.XXXXXX)
+VALIDATED_PICKS_FILE=$(mktemp /tmp/newscan_picks_valid.XXXXXX)
+URL_CACHE=$(mktemp /tmp/newscan_url_cache.XXXXXX)
 HTML_ENABLED="${NEWSROOM_HTML_ENABLED:-1}"
 HTML_OUTPUT="${NEWSROOM_HTML_OUTPUT:-$OUTPUT_DIR/newsroom-run-${RUN_TIMESTAMP}.html}"
 
 cleanup() {
-  rm -f "$ARTICLES_FILE" "$REDDIT_FILE" "$TAVILY_FILE" "$TWITTER_API_FILE" \
-        "$SCORED_FILE" "$ENRICHED_FILE" "$GITHUB_FILE" "$TWITTER_RAW"
+  rm -f "$ARTICLES_FILE" "$NORMALIZED_ARTICLES_FILE" "$REDDIT_FILE" \
+        "$TAVILY_FILE" "$TWITTER_API_FILE" "$SCORED_FILE" "$ENRICHED_FILE" \
+        "$GITHUB_FILE" "$NORMALIZED_GITHUB_FILE" "$TWITTER_RAW" "$TWITTER_PARSED" \
+        "$VALIDATED_PICKS_FILE" "$URL_CACHE"
   # 保留到脚本末尾再清理
 }
 trap cleanup EXIT
@@ -182,62 +189,19 @@ echo ""
 echo "[3/5] Scanning X/Twitter..."
 
 # 3a: bird CLI (primary — account-based)
-if run_timeout 90s "$SCRIPT_DIR/scan_twitter_ai.sh" > "$TWITTER_RAW" 2>/dev/null; then
+if run_timeout "${NEWSROOM_TWITTER_SCAN_TIMEOUT:-180s}" "$SCRIPT_DIR/scan_twitter_ai.sh" > "$TWITTER_RAW" 2>/dev/null; then
   echo "  bird CLI scan completed"
 else
   echo "  Warning: bird CLI scan timed out or failed"
 fi
 
 if [ -s "$TWITTER_RAW" ]; then
-  TWITTER_COUNT=$(python3 -c '
-import sys, re
-
-twitter_file = sys.argv[1]
-articles_file = sys.argv[2]
-count = 0
-current_handle = ""
-
-with open(twitter_file, "r") as f:
-    lines = f.readlines()
-
-with open(articles_file, "a") as out:
-    for line in lines:
-        line = line.strip()
-        if not line:
-            continue
-        # Skip section headers and separator lines
-        if line.startswith(("===", "---", "Scanning", "Tier", "Breaking", "Product", "CEO")):
-            continue
-        if line.startswith("\u2500"):  # ─ separator
-            continue
-        # Detect account header: @username (DisplayName):
-        m = re.match(r"^@(\w+)\s+\(.+\):", line)
-        if m:
-            current_handle = "@" + m.group(1)
-            continue
-        # Skip metadata lines
-        if re.match(r"^(date|VIDEO|PHOTO|url):", line):
-            continue
-        text = line.replace("|", " -")
-        urls = re.findall(r"(https?://\S+)", line)
-        external_url = ""
-        tweet_url = ""
-        for u in urls:
-            if "x.com/" in u or "twitter.com/" in u or "t.co/" in u:
-                if not tweet_url:
-                    tweet_url = u
-            else:
-                if not external_url:
-                    external_url = u
-        source = f"X/Twitter ({current_handle})" if current_handle else "X/Twitter (tweet)"
-        if external_url:
-            out.write(f"{text}|{external_url}|{source}\n")
-        elif tweet_url:
-            out.write(f"{text}|{tweet_url}|{source}\n")
-        count += 1
-
-print(count)
-' "$TWITTER_RAW" "$ARTICLES_FILE")
+  if python3 "$SCRIPT_DIR/parse_bird_output.py" --input "$TWITTER_RAW" > "$TWITTER_PARSED"; then
+    TWITTER_COUNT=$(wc -l < "$TWITTER_PARSED" | tr -d ' ')
+    cat "$TWITTER_PARSED" >> "$ARTICLES_FILE"
+  else
+    TWITTER_COUNT=0
+  fi
   echo "     bird CLI: $TWITTER_COUNT tweets"
 else
   TWITTER_COUNT=0
@@ -283,18 +247,50 @@ else
 fi
 
 # ═════════════════════════════════════════════════════════════════════
+# LINK NORMALIZATION + REACHABILITY GATE (all sources)
+# ═════════════════════════════════════════════════════════════════════
+echo ""
+echo "Validating and normalizing outbound links..."
+LINK_TIMEOUT="${NEWSROOM_LINK_CHECK_TIMEOUT:-8}"
+LINK_WORKERS="${NEWSROOM_LINK_CHECK_WORKERS:-16}"
+
+if ! run_timeout 240s python3 "$SCRIPT_DIR/normalize_article_urls.py" \
+    --input "$ARTICLES_FILE" --format pipe \
+    --timeout "$LINK_TIMEOUT" --workers "$LINK_WORKERS" --cache "$URL_CACHE" \
+    > "$NORMALIZED_ARTICLES_FILE"; then
+  echo "  Error: source link validation failed; refusing to generate a report with unchecked links"
+  exit 1
+fi
+
+if [ -s "$GITHUB_FILE" ]; then
+  if ! run_timeout 120s python3 "$SCRIPT_DIR/normalize_article_urls.py" \
+      --input "$GITHUB_FILE" --format pipe \
+      --timeout "$LINK_TIMEOUT" --workers "$LINK_WORKERS" --cache "$URL_CACHE" \
+      > "$NORMALIZED_GITHUB_FILE"; then
+    echo "  Error: GitHub link validation failed; refusing unchecked links"
+    exit 1
+  fi
+else
+  : > "$NORMALIZED_GITHUB_FILE"
+fi
+
+VALID_ARTICLE_COUNT=$(wc -l < "$NORMALIZED_ARTICLES_FILE" | tr -d ' ')
+VALID_GITHUB_COUNT=$(wc -l < "$NORMALIZED_GITHUB_FILE" | tr -d ' ')
+echo "  Valid links retained: $VALID_ARTICLE_COUNT articles + $VALID_GITHUB_COUNT GitHub entries"
+
+# ═════════════════════════════════════════════════════════════════════
 # QUALITY SCORING PRE-FILTER
 # ═════════════════════════════════════════════════════════════════════
 echo ""
 TOTAL_RAW=$((RSS_COUNT + REDDIT_COUNT + TWITTER_COUNT + TWITTER_API_COUNT + TAVILY_COUNT))
 echo "Quality scoring ($TOTAL_RAW candidates)..."
 
-if [ "$TOTAL_RAW" -gt 0 ]; then
-  python3 "$SCRIPT_DIR/quality_score.py" --input "$ARTICLES_FILE" --max 500 > "$SCORED_FILE" 2>/dev/null
+if [ "$VALID_ARTICLE_COUNT" -gt 0 ]; then
+  python3 "$SCRIPT_DIR/quality_score.py" --input "$NORMALIZED_ARTICLES_FILE" --max 500 > "$SCORED_FILE" 2>/dev/null
   SCORED_COUNT=$(wc -l < "$SCORED_FILE" | tr -d ' ')
   echo "  Top $SCORED_COUNT articles after scoring + dedup"
 else
-  cp "$ARTICLES_FILE" "$SCORED_FILE"
+  cp "$NORMALIZED_ARTICLES_FILE" "$SCORED_FILE"
   SCORED_COUNT=0
 fi
 
@@ -321,7 +317,7 @@ fi
 echo ""
 echo "Running LLM editorial filter (executor=${NEWSROOM_ANALYSIS_EXECUTOR:-llm_api}${NEWSROOM_AGENT_KIND:+ kind=$NEWSROOM_AGENT_KIND})..."
 
-TOTAL_CANDIDATES=$((TOTAL_RAW + GITHUB_COUNT))
+TOTAL_CANDIDATES=$((VALID_ARTICLE_COUNT + VALID_GITHUB_COUNT))
 echo "   Pipeline: ${TOTAL_RAW} raw -> ${SCORED_COUNT:-$TOTAL_RAW} scored -> LLM"
 
 if [ "$TOTAL_CANDIDATES" -eq 0 ]; then
@@ -332,11 +328,11 @@ fi
 
 export NEWSROOM_SCRIPT_DIR="$SCRIPT_DIR"
 export NEWSROOM_ENRICHED_FILE="$ENRICHED_FILE"
-export NEWSROOM_GITHUB_FILE="$GITHUB_FILE"
+export NEWSROOM_GITHUB_FILE="$NORMALIZED_GITHUB_FILE"
 
 LLM_CMD="bash \"$SCRIPT_DIR/dispatch_llm_editor.sh\" --file \"$ENRICHED_FILE\""
-if [ -s "$GITHUB_FILE" ]; then
-  LLM_CMD="$LLM_CMD --github \"$GITHUB_FILE\""
+if [ -s "$NORMALIZED_GITHUB_FILE" ]; then
+  LLM_CMD="$LLM_CMD --github \"$NORMALIZED_GITHUB_FILE\""
 fi
 
 LLM_SUCCESS=true
@@ -348,12 +344,50 @@ else
   LLM_SUCCESS=false
 fi
 
+# LLM output must pass the same URL gate. Cached source checks make this fast;
+# any URL changed or invented by the LLM is checked from scratch.
+if [ -s "$PICKS_FILE" ]; then
+  if run_timeout 180s python3 "$SCRIPT_DIR/normalize_article_urls.py" \
+      --input "$PICKS_FILE" --format jsonl \
+      --timeout "$LINK_TIMEOUT" --workers "$LINK_WORKERS" --cache "$URL_CACHE" \
+      > "$VALIDATED_PICKS_FILE"; then
+    cp "$VALIDATED_PICKS_FILE" "$PICKS_FILE"
+    PICKS_COUNT=$(wc -l < "$PICKS_FILE" | tr -d ' ')
+    # Keep the pending dedup log aligned with the validated report. This
+    # prevents a link rejected here from being marked as already presented.
+    python3 - "$PICKS_FILE" "$NEWSROOM_PRESENTED_PENDING" << 'PY'
+import json
+import sys
+from datetime import datetime
+from pathlib import Path
+
+picks_path = Path(sys.argv[1])
+pending_path = Path(sys.argv[2])
+today = datetime.now().strftime("%Y-%m-%d")
+timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+lines = [f"\n## {today}\n\n"]
+for raw in picks_path.read_text(encoding="utf-8", errors="replace").splitlines():
+    try:
+        item = json.loads(raw)
+    except json.JSONDecodeError:
+        continue
+    lines.append(f"[{timestamp}] {item.get('title', '(no title)')} | {item.get('url', '')}\n")
+pending_path.parent.mkdir(parents=True, exist_ok=True)
+pending_path.write_text("".join(lines), encoding="utf-8")
+PY
+    echo "  Final link gate passed（$PICKS_COUNT valid picks）"
+  else
+    echo "  Warning: final link validation failed"
+    LLM_SUCCESS=false
+  fi
+fi
+
 # ═════════════════════════════════════════════════════════════════════
 # FORMAT & DISPLAY OUTPUT
 # ═════════════════════════════════════════════════════════════════════
 echo ""
 cp "$ENRICHED_FILE" "$PERSISTENT_CANDIDATES" 2>/dev/null
-cp "$GITHUB_FILE" "$PERSISTENT_GITHUB" 2>/dev/null
+cp "$NORMALIZED_GITHUB_FILE" "$PERSISTENT_GITHUB" 2>/dev/null
 
 echo "═══════════════════════════════════════════════════════════"
 echo "  TOP PICKS"

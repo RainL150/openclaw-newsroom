@@ -15,6 +15,8 @@ from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
 
+from url_tools import normalize_url
+
 SECTION_ORDER = [
     "模型层面（Model）",
     "应用层面（Application）",
@@ -128,7 +130,8 @@ def build_html(title: str, rows):
         for it in items:
             title_txt = esc(str(it.get("title", "(no title)")))
             title_zh = esc(str(it.get("title_zh", "")))
-            url = esc(str(it.get("url", "")))
+            safe_url = normalize_url(str(it.get("url", "")))
+            url = esc(safe_url)
             source = esc(str(it.get("source", "unknown")))
             category = esc(str(it.get("category", "other")))
             channel = esc(str(it.get("channel", "RSS")))
@@ -144,6 +147,13 @@ def build_html(title: str, rows):
                 main_title = title_txt
                 subtitle = ''
 
+            link_html = (
+                f'<a class="link" href="{url}" target="_blank" '
+                'rel="noopener noreferrer nofollow">查看原文 ↗</a>'
+                if safe_url
+                else '<span class="link-disabled">链接未通过安全校验</span>'
+            )
+
             cards.append(
                 f"""
 <article class=\"card\">
@@ -157,7 +167,7 @@ def build_html(title: str, rows):
   {subtitle}
   <p class=\"summary\">{summary_txt}</p>
   <div class=\"meta\">来源：{source}</div>
-  <a class=\"link\" href=\"{url}\" target=\"_blank\" rel=\"noopener noreferrer\">查看原文 ↗</a>
+  {link_html}
 </article>
 """
             )
@@ -242,6 +252,7 @@ def build_html(title: str, rows):
     .summary {{ margin: 0 0 8px; color: #374151; line-height: 1.7; font-size: 14px; }}
     .meta {{ color: var(--muted); font-size: 13px; margin-bottom: 8px; }}
     .link {{ color: var(--brand); text-decoration: none; font-size: 14px; }}
+    .link-disabled {{ color: #9ca3af; font-size: 14px; }}
     .empty {{ color: var(--muted); padding: 8px 2px; }}
   </style>
 </head>

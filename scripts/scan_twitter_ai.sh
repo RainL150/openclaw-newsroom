@@ -88,25 +88,25 @@ CEO_ACCOUNTS=(
 
 echo "Scanning official accounts..."
 for acct in "${OFFICIAL_ACCOUNTS[@]}"; do
-  run_timeout 8s $BIRD $BIRD_EXTRA search "from:$acct" -n 3 --plain 2>/dev/null | head -20 || true
+  run_timeout 8s $BIRD $BIRD_EXTRA search "from:$acct" -n 3 --plain 2>/dev/null || true
 done
 
 echo ""
 echo "Scanning reporters & leakers..."
 for acct in "${REPORTER_ACCOUNTS[@]}"; do
-  run_timeout 8s $BIRD $BIRD_EXTRA search "from:$acct" -n 3 --plain 2>/dev/null | head -20 || true
+  run_timeout 8s $BIRD $BIRD_EXTRA search "from:$acct" -n 3 --plain 2>/dev/null || true
 done
 
 echo ""
 echo "Breaking AI news search..."
-run_timeout 10s $BIRD $BIRD_EXTRA search just launched OR now available OR rolling out OR just released AI model -filter:replies -filter:retweets -n 8 --plain 2>/dev/null | head -40 || true
+run_timeout 10s $BIRD $BIRD_EXTRA search just launched OR now available OR rolling out OR just released AI model -filter:replies -filter:retweets -n 8 --plain 2>/dev/null || true
 
 echo ""
 echo "Product launches & announcements..."
-run_timeout 10s $BIRD $BIRD_EXTRA search introducing OR announcing AI OR LLM OR model -filter:replies -filter:retweets -n 8 --plain 2>/dev/null | head -40 || true
+run_timeout 10s $BIRD $BIRD_EXTRA search introducing OR announcing AI OR LLM OR model -filter:replies -filter:retweets -n 8 --plain 2>/dev/null || true
 
 echo ""
 echo "CEO signals (context only)..."
 for acct in "${CEO_ACCOUNTS[@]}"; do
-  run_timeout 8s $BIRD $BIRD_EXTRA search "from:$acct" -n 2 --plain 2>/dev/null | head -15 || true
+  run_timeout 8s $BIRD $BIRD_EXTRA search "from:$acct" -n 2 --plain 2>/dev/null || true
 done

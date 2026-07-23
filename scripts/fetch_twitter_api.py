@@ -6,8 +6,8 @@ Uses twitterapi.io's search endpoint for keyword-based Twitter searches.
 This catches breaking news that might be missed by the bird CLI's
 account-based approach.
 
-Output: pipe-delimited TITLE|URL|SOURCE format.
-Sources tagged with "(tweet)" when no external article URL exists.
+Output: pipe-delimited TITLE|URL|SOURCE|FULLTEXT format.
+The URL is always the tweet permalink when an author and tweet id are present.
 
 Usage:
     python3 fetch_twitter_api.py [--max-queries 3]
@@ -77,24 +77,21 @@ def search_twitter(query, api_key, max_results=10):
 
 def extract_url_from_tweet(tweet):
     """
-    Extract the first external URL from a tweet.
-    Returns (url, is_tweet_only):
-      - (external_url, False) if an article URL was found in entities
-      - (tweet_url, True) if only the tweet's own URL is available
-      - ("", True) if no URL could be constructed
+    Return a stable tweet permalink. Fall back to an expanded external URL only
+    when the API response lacks the author/id needed to build the permalink.
     """
+    author = tweet.get("author", {})
+    screen_name = author.get("userName", "")
+    tweet_id = tweet.get("id", "")
+    if screen_name and tweet_id:
+        return f"https://x.com/{screen_name}/status/{tweet_id}", True
+
     entities = tweet.get("entities", {})
     urls = entities.get("urls", [])
     for u in urls:
         expanded = u.get("expanded_url", u.get("url", ""))
         if expanded and "twitter.com" not in expanded and "t.co" not in expanded and "x.com" not in expanded:
             return expanded, False
-
-    author = tweet.get("author", {})
-    screen_name = author.get("userName", "")
-    tweet_id = tweet.get("id", "")
-    if screen_name and tweet_id:
-        return f"https://x.com/{screen_name}/status/{tweet_id}", True
     return "", True
 
 
@@ -143,8 +140,9 @@ def main():
             seen_urls.add(url)
 
             screen_name = author.get("userName", "unknown")
-            source_tag = f"X/@{screen_name} (tweet)" if is_tweet_only else f"X/@{screen_name}"
-            all_results.append(f"{title}|{url}|{source_tag}")
+            source_tag = f"X/Twitter (@{screen_name})" if is_tweet_only else f"X/@{screen_name}"
+            fulltext = re.sub(r'\s+', ' ', text).replace('|', ' -')[:1200]
+            all_results.append(f"{title}|{url}|{source_tag}|FULLTEXT:{fulltext}")
 
     for line in all_results:
         print(line)

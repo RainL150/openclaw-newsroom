@@ -84,7 +84,7 @@ def get_domain(url):
     """Extract domain from URL."""
     try:
         from urllib.parse import urlparse
-        return urlparse(url).netloc.lower().lstrip("www.")
+        return urlparse(url).netloc.lower().removeprefix("www.")
     except Exception:
         return ""
 

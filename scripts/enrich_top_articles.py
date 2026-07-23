@@ -68,7 +68,7 @@ class TextExtractor(HTMLParser):
 
 def fetch_full_text(url, max_chars=1500):
     """Fetch article full text via CF Markdown or HTML extraction."""
-    domain = urlparse(url).netloc.lower().lstrip("www.")
+    domain = urlparse(url).netloc.lower().removeprefix("www.")
     if domain in SKIP_DOMAINS:
         return ""
 
