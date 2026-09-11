@@ -3,6 +3,7 @@ import threading
 import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -12,7 +13,7 @@ sys.path.insert(0, str(SCRIPTS))
 from normalize_article_urls import process_entries  # noqa: E402
 from parse_bird_output import parse_bird_text  # noqa: E402
 from render_newsroom_html import build_html  # noqa: E402
-from url_tools import normalize_url, resolve_and_validate  # noqa: E402
+from url_tools import is_safe_remote_url, normalize_url, resolve_and_validate  # noqa: E402
 from fetch_web_news import get_domain  # noqa: E402
 
 
@@ -98,6 +99,10 @@ class URLToolsTests(LocalHTTPServerMixin, unittest.TestCase):
         )
         self.assertTrue(result.ok)
         self.assertEqual(result.reason, "reachable_but_restricted")
+
+    def test_unresolved_public_hostname_is_not_preemptively_rejected(self):
+        with patch("url_tools.socket.getaddrinfo", side_effect=OSError("dns down")):
+            self.assertTrue(is_safe_remote_url("https://example.com/article"))
 
     def test_batch_processing_deduplicates_redirect_targets(self):
         entries = [

@@ -143,8 +143,8 @@ def is_safe_remote_url(url: str, *, allow_private: bool = False) -> bool:
                 for item in socket.getaddrinfo(hostname, None, type=socket.SOCK_STREAM)
             }
         except (OSError, socket.gaierror):
-            return False
-        return bool(addresses) and all(_is_public_ip(address) for address in addresses)
+            return True
+        return not addresses or all(_is_public_ip(address) for address in addresses)
     return _is_public_ip(hostname)
 
 
