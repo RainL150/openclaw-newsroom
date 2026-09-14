@@ -21,10 +21,12 @@ import sys
 import time
 import urllib.request
 import urllib.error
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 # ── Configuration ──────────────────────────────────────────────────
+SCRIPT_DIR = Path(__file__).resolve().parent
 STATE_FILE = Path(os.path.expanduser(
     "~/.openclaw/workspace/memory/github_trending_state.json"
 ))
@@ -33,10 +35,34 @@ HEADERS = {
     "Accept": "application/vnd.github+json",
     "User-Agent": "NewsScanner/1.0",
 }
-_gh_token = os.environ.get("GH_TOKEN", "")
+
+
+def load_local_env_var(name):
+    if os.environ.get(name):
+        return os.environ[name]
+
+    env_path = SCRIPT_DIR.parent / ".env"
+    if not env_path.exists():
+        return ""
+
+    try:
+        for line in env_path.read_text(errors="ignore").splitlines():
+            stripped = line.strip()
+            if not stripped or stripped.startswith("#") or "=" not in stripped:
+                continue
+            key, value = stripped.split("=", 1)
+            if key.strip() == name:
+                return value.strip().strip('"').strip("'")
+    except OSError:
+        return ""
+    return ""
+
+
+_gh_token = load_local_env_var("GH_TOKEN")
 if _gh_token:
     HEADERS["Authorization"] = f"token {_gh_token}"
 REQUEST_TIMEOUT = 30
+RELEASE_WORKERS = int(os.environ.get("NEWSROOM_GITHUB_RELEASE_WORKERS", "6"))
 
 # Topics to scan (each generates a separate API call)
 TOPICS = ["ai", "llm", "agents", "generative-ai", "large-language-model", "ai-agent", "multi-agent"]
@@ -205,31 +231,49 @@ def scan_velocity(state):
     return results, merged_repos
 
 
+def fetch_repo_releases(repo_name):
+    url = f"https://api.github.com/repos/{repo_name}/releases?per_page=3"
+    req = urllib.request.Request(url, headers=HEADERS)
+    try:
+        with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
+            remaining = resp.headers.get("X-RateLimit-Remaining", "?")
+            releases = json.loads(resp.read().decode())
+            return repo_name, remaining, releases
+    except urllib.error.HTTPError as e:
+        if e.code != 404:
+            log(f"  WARNING: Release scan API error for {repo_name}: HTTP {e.code}")
+    except Exception as e:
+        log(f"  WARNING: Release scan failed for {repo_name}: {e}")
+    return repo_name, None, []
+
+
 def scan_releases():
-    global _rate_limited
     cutoff = datetime.now(timezone.utc) - timedelta(days=RELEASE_WINDOW_DAYS)
     results = []
+    release_data = {}
+    release_rate_limited = False
+
+    max_workers = max(1, min(RELEASE_WORKERS, len(RELEASE_REPOS)))
+    log(f"  Fetching releases for {len(RELEASE_REPOS)} repos with {max_workers} workers")
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {
+            executor.submit(fetch_repo_releases, repo_name): repo_name
+            for repo_name in RELEASE_REPOS
+        }
+        for future in as_completed(futures):
+            repo_name, remaining, releases = future.result()
+            if remaining is not None:
+                log(f"  Releases OK: {repo_name} — rate limit remaining: {remaining}")
+                if remaining != "?" and int(remaining) <= 2:
+                    release_rate_limited = True
+            release_data[repo_name] = releases
+
+    if release_rate_limited:
+        log("WARNING: GitHub API rate limit nearly exhausted during release scan.")
 
     for repo_name in RELEASE_REPOS:
-        if _rate_limited:
-            break
-        url = f"https://api.github.com/repos/{repo_name}/releases?per_page=3"
-        req = urllib.request.Request(url, headers=HEADERS)
-        try:
-            with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
-                remaining = resp.headers.get("X-RateLimit-Remaining", "?")
-                if remaining != "?" and int(remaining) <= 2:
-                    _rate_limited = True
-                    break
-                releases = json.loads(resp.read().decode())
-        except urllib.error.HTTPError as e:
-            if e.code == 404:
-                continue
-            continue
-        except Exception:
-            continue
-
-        for release in releases:
+        for release in release_data.get(repo_name, []):
             if release.get("draft", False) or release.get("prerelease", False):
                 continue
             published = release.get("published_at", "")
@@ -252,7 +296,6 @@ def scan_releases():
             desc = f"{name}. {body}" if body else name
             results.append((title, html_url, "GitHub/Releases", 0, repo_name, desc))
             break
-        time.sleep(0.3)
     return results
 
 
