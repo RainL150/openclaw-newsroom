@@ -63,7 +63,15 @@ def _parse_jsonl(lines):
     return entries
 
 
-def process_entries(entries, *, workers, timeout, cache, allow_private=False):
+def process_entries(
+    entries,
+    *,
+    workers,
+    timeout,
+    cache,
+    allow_private=False,
+    allow_proxy_dns=False,
+):
     results = {}
     pending = {}
     for entry in entries:
@@ -81,6 +89,7 @@ def process_entries(entries, *, workers, timeout, cache, allow_private=False):
                 url,
                 timeout=timeout,
                 allow_private=allow_private,
+                allow_proxy_dns=allow_proxy_dns,
             ): url
             for url in pending
         }
@@ -106,6 +115,11 @@ def main():
     parser.add_argument("--timeout", type=float, default=8)
     parser.add_argument("--cache")
     parser.add_argument("--allow-private", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument(
+        "--allow-proxy-dns",
+        action="store_true",
+        help="Allow DNS answers in 198.18.0.0/15 for trusted local proxy environments",
+    )
     args = parser.parse_args()
 
     input_path = Path(args.input)
@@ -119,6 +133,7 @@ def main():
         timeout=args.timeout,
         cache=cache,
         allow_private=args.allow_private,
+        allow_proxy_dns=args.allow_proxy_dns,
     )
 
     kept = []

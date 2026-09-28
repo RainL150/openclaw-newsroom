@@ -122,7 +122,19 @@ def _is_public_ip(value: str) -> bool:
         return False
 
 
-def is_safe_remote_url(url: str, *, allow_private: bool = False) -> bool:
+def _is_proxy_dns_ip(value: str) -> bool:
+    try:
+        return ipaddress.ip_address(value) in ipaddress.ip_network("198.18.0.0/15")
+    except ValueError:
+        return False
+
+
+def is_safe_remote_url(
+    url: str,
+    *,
+    allow_private: bool = False,
+    allow_proxy_dns: bool = False,
+) -> bool:
     """Reject local/private destinations before server-side link checks."""
     normalized = normalize_url(url, strip_tracking=False)
     if not normalized:
@@ -144,20 +156,29 @@ def is_safe_remote_url(url: str, *, allow_private: bool = False) -> bool:
             }
         except (OSError, socket.gaierror):
             return True
-        return not addresses or all(_is_public_ip(address) for address in addresses)
-    return _is_public_ip(hostname)
+        return not addresses or all(
+            _is_public_ip(address)
+            or (allow_proxy_dns and _is_proxy_dns_ip(address))
+            for address in addresses
+        )
+    return _is_public_ip(hostname) or (allow_proxy_dns and _is_proxy_dns_ip(hostname))
 
 
 class SafeRedirectHandler(HTTPRedirectHandler):
     """Validate every redirect target so feeds cannot turn checks into SSRF."""
 
-    def __init__(self, *, allow_private: bool = False):
+    def __init__(self, *, allow_private: bool = False, allow_proxy_dns: bool = False):
         super().__init__()
         self.allow_private = allow_private
+        self.allow_proxy_dns = allow_proxy_dns
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         absolute = urljoin(req.full_url, newurl)
-        if not is_safe_remote_url(absolute, allow_private=self.allow_private):
+        if not is_safe_remote_url(
+            absolute,
+            allow_private=self.allow_private,
+            allow_proxy_dns=self.allow_proxy_dns,
+        ):
             raise HTTPError(absolute, 403, "unsafe redirect target", headers, fp)
         return super().redirect_request(req, fp, code, msg, headers, absolute)
 
@@ -181,6 +202,7 @@ def resolve_and_validate(
     *,
     timeout: float = 8,
     allow_private: bool = False,
+    allow_proxy_dns: bool = False,
     opener=None,
 ) -> LinkCheckResult:
     """Follow redirects, remove tracking parameters, and verify reachability."""
@@ -188,10 +210,19 @@ def resolve_and_validate(
     cleaned = normalize_url(original)
     if not cleaned:
         return LinkCheckResult(original, "", False, reason="invalid_or_unsafe_scheme")
-    if not is_safe_remote_url(cleaned, allow_private=allow_private):
+    if not is_safe_remote_url(
+        cleaned,
+        allow_private=allow_private,
+        allow_proxy_dns=allow_proxy_dns,
+    ):
         return LinkCheckResult(original, cleaned, False, reason="unsafe_or_unresolvable_host")
 
-    active_opener = opener or build_opener(SafeRedirectHandler(allow_private=allow_private))
+    active_opener = opener or build_opener(
+        SafeRedirectHandler(
+            allow_private=allow_private,
+            allow_proxy_dns=allow_proxy_dns,
+        )
+    )
     last_error = ""
     last_status = None
     original_host = (urlsplit(cleaned).hostname or "").lower()
@@ -201,7 +232,11 @@ def resolve_and_validate(
             with _request(active_opener, cleaned, method, timeout) as response:
                 status = getattr(response, "status", None) or response.getcode()
                 final_url = normalize_url(response.geturl())
-                if not final_url or not is_safe_remote_url(final_url, allow_private=allow_private):
+                if not final_url or not is_safe_remote_url(
+                    final_url,
+                    allow_private=allow_private,
+                    allow_proxy_dns=allow_proxy_dns,
+                ):
                     return LinkCheckResult(original, final_url, False, status, "unsafe_final_url")
                 if 200 <= status < 400:
                     final_host = (urlsplit(final_url).hostname or "").lower()
@@ -228,7 +263,11 @@ def resolve_and_validate(
                     final_host = (urlsplit(final_url).hostname or "").lower()
                     if (
                         final_host not in KNOWN_SHORTENERS
-                        and is_safe_remote_url(final_url, allow_private=allow_private)
+                        and is_safe_remote_url(
+                            final_url,
+                            allow_private=allow_private,
+                            allow_proxy_dns=allow_proxy_dns,
+                        )
                     ):
                         return LinkCheckResult(
                             original,

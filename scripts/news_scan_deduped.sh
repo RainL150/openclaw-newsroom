@@ -253,10 +253,15 @@ echo ""
 echo "Validating and normalizing outbound links..."
 LINK_TIMEOUT="${NEWSROOM_LINK_CHECK_TIMEOUT:-8}"
 LINK_WORKERS="${NEWSROOM_LINK_CHECK_WORKERS:-16}"
+LINK_PROXY_DNS_ARGS=()
+if [ "${NEWSROOM_LINK_CHECK_ALLOW_PROXY_DNS:-0}" = "1" ]; then
+  LINK_PROXY_DNS_ARGS=(--allow-proxy-dns)
+fi
 
 if ! run_timeout 240s python3 "$SCRIPT_DIR/normalize_article_urls.py" \
     --input "$ARTICLES_FILE" --format pipe \
     --timeout "$LINK_TIMEOUT" --workers "$LINK_WORKERS" --cache "$URL_CACHE" \
+    "${LINK_PROXY_DNS_ARGS[@]}" \
     > "$NORMALIZED_ARTICLES_FILE"; then
   echo "  Error: source link validation failed; refusing to generate a report with unchecked links"
   exit 1
@@ -266,6 +271,7 @@ if [ -s "$GITHUB_FILE" ]; then
   if ! run_timeout 120s python3 "$SCRIPT_DIR/normalize_article_urls.py" \
       --input "$GITHUB_FILE" --format pipe \
       --timeout "$LINK_TIMEOUT" --workers "$LINK_WORKERS" --cache "$URL_CACHE" \
+      "${LINK_PROXY_DNS_ARGS[@]}" \
       > "$NORMALIZED_GITHUB_FILE"; then
     echo "  Error: GitHub link validation failed; refusing unchecked links"
     exit 1

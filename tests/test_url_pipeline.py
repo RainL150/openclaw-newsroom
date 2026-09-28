@@ -104,6 +104,17 @@ class URLToolsTests(LocalHTTPServerMixin, unittest.TestCase):
         with patch("url_tools.socket.getaddrinfo", side_effect=OSError("dns down")):
             self.assertTrue(is_safe_remote_url("https://example.com/article"))
 
+    def test_proxy_dns_range_requires_explicit_opt_in(self):
+        dns_answer = [(None, None, None, None, ("198.18.0.42", 0))]
+        with patch("url_tools.socket.getaddrinfo", return_value=dns_answer):
+            self.assertFalse(is_safe_remote_url("https://example.com/article"))
+            self.assertTrue(
+                is_safe_remote_url(
+                    "https://example.com/article",
+                    allow_proxy_dns=True,
+                )
+            )
+
     def test_batch_processing_deduplicates_redirect_targets(self):
         entries = [
             {"index": 0, "url": f"{self.base}/redirect", "parts": ["A", "", "RSS"]},
