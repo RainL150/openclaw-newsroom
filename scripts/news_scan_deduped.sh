@@ -81,6 +81,7 @@ PERSISTENT_CANDIDATES="$SCRIPT_DIR/../memory/last_scan_candidates.txt"
 PERSISTENT_GITHUB="$SCRIPT_DIR/../memory/last_scan_github.txt"
 GITHUB_FILE=$(mktemp /tmp/newscan_github.XXXXXX)
 NORMALIZED_GITHUB_FILE=$(mktemp /tmp/newscan_github_valid.XXXXXX)
+GITHUB_LOG_FILE=$(mktemp /tmp/newscan_github_log.XXXXXX)
 TWITTER_RAW=$(mktemp /tmp/newscan_twitter.XXXXXX)
 TWITTER_PARSED=$(mktemp /tmp/newscan_twitter_parsed.XXXXXX)
 PICKS_FILE=$(mktemp /tmp/newscan_picks.XXXXXX)
@@ -92,7 +93,7 @@ HTML_OUTPUT="${NEWSROOM_HTML_OUTPUT:-$OUTPUT_DIR/newsroom-run-${RUN_TIMESTAMP}.h
 cleanup() {
   rm -f "$ARTICLES_FILE" "$NORMALIZED_ARTICLES_FILE" "$REDDIT_FILE" \
         "$TAVILY_FILE" "$TWITTER_API_FILE" "$SCORED_FILE" "$ENRICHED_FILE" \
-        "$GITHUB_FILE" "$NORMALIZED_GITHUB_FILE" "$TWITTER_RAW" "$TWITTER_PARSED" \
+        "$GITHUB_FILE" "$NORMALIZED_GITHUB_FILE" "$GITHUB_LOG_FILE" "$TWITTER_RAW" "$TWITTER_PARSED" \
         "$VALIDATED_PICKS_FILE" "$URL_CACHE"
   # 保留到脚本末尾再清理
 }
@@ -223,11 +224,32 @@ fi
 echo ""
 echo "[4/5] Scanning GitHub trending + releases..."
 
-if run_timeout 45s python3 "$SCRIPT_DIR/github_trending.py" > "$GITHUB_FILE" 2>/dev/null; then
+GITHUB_SCAN_TIMEOUT="${NEWSROOM_GITHUB_SCAN_TIMEOUT:-120s}"
+GITHUB_SCAN_RETRIES="${NEWSROOM_GITHUB_SCAN_RETRIES:-2}"
+GITHUB_RETRY_DELAY="${NEWSROOM_GITHUB_RETRY_DELAY:-5}"
+GITHUB_SCAN_ATTEMPTS=$((GITHUB_SCAN_RETRIES + 1))
+GITHUB_SCAN_OK=false
+
+for GITHUB_SCAN_ATTEMPT in $(seq 1 "$GITHUB_SCAN_ATTEMPTS"); do
+  : > "$GITHUB_LOG_FILE"
+  if run_timeout "$GITHUB_SCAN_TIMEOUT" python3 "$SCRIPT_DIR/github_trending.py" > "$GITHUB_FILE" 2> "$GITHUB_LOG_FILE"; then
+    GITHUB_SCAN_OK=true
+    break
+  fi
+
+  echo "  Warning: GitHub scan attempt $GITHUB_SCAN_ATTEMPT/$GITHUB_SCAN_ATTEMPTS failed or timed out"
+  if [ "$GITHUB_SCAN_ATTEMPT" -lt "$GITHUB_SCAN_ATTEMPTS" ]; then
+    echo "  Retrying GitHub scan in ${GITHUB_RETRY_DELAY}s..."
+    sleep "$GITHUB_RETRY_DELAY"
+  fi
+done
+
+if [ "$GITHUB_SCAN_OK" = true ]; then
   GITHUB_COUNT=$(wc -l < "$GITHUB_FILE" | tr -d ' ')
   echo "  Found $GITHUB_COUNT trending/release repos"
 else
-  echo "  Warning: GitHub scan timed out or failed (continuing)"
+  echo "  Warning: GitHub scan failed after $GITHUB_SCAN_ATTEMPTS attempts (continuing)"
+  tail -n 3 "$GITHUB_LOG_FILE" | sed 's/^/    GitHub: /' || true
   GITHUB_COUNT=0
 fi
 
